@@ -14,7 +14,7 @@ using namespace std;
 
 ClassImp(AliSkimmedDataAnalysisMaker);
 
-AliSkimmedDataAnalysisMaker::AliSkimmedDataAnalysisMaker( const char * outName) {
+AliSkimmedDataAnalysisMaker::AliSkimmedDataAnalysisMaker( const char * outName_Sparse, const char * outName_Tree) {
 
   // TFile* inputFile = new TFile("V0tree.root","READ");
   // TTree *tree_v0=  (TTree *) inputFile->Get("V0Flat");
@@ -24,10 +24,12 @@ AliSkimmedDataAnalysisMaker::AliSkimmedDataAnalysisMaker( const char * outName) 
 
   // V0ana->Loop();
 
-  cout<< outName<<endl;
-  mOutputFile=new TFile(outName,"RECREATE");
+  cout<< outName_Sparse<<endl;
+  mOutputFile=new TFile(outName_Sparse,"RECREATE");
   
-  mOutputFile_eta = new TFile("TPCPIDEta.root","RECREATE");  
+  mOutputFile_eta = new TFile(outName_Tree,"RECREATE"); 
+
+  mOutputFile_BBFitAnalysis = new TFile("TPCTree_BBFitAnalysis.root","RECREATE"); 
 }
 AliSkimmedDataAnalysisMaker::~AliSkimmedDataAnalysisMaker(){
   //..
@@ -79,10 +81,10 @@ void AliSkimmedDataAnalysisMaker::bookHistogram()
   // BinLogAxis(fThnspTpc, 8);
   
   bool IsPbPb=true;
-  const Int_t kNdim = 7;
-  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 140, 10,  IsPbPb ? 40 : 40 };
-  Double_t xminHistQA[kNdim] = {0.1,   20., -0.5, -0.5, -10., -5.,   0.};
-  Double_t xmaxHistQA[kNdim] = {50., 2000.,  3.5,  7.5,  10.,  5., IsPbPb ? 25000. : 4000.};
+  const Int_t kNdim = 8;
+  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 40, 10,  IsPbPb ? 40 : 40,10};
+  Double_t xminHistQA[kNdim] = {0.1,   20., -0.5, -0.5, -10., -5.,   0.,0};
+  Double_t xmaxHistQA[kNdim] = {50., 2000.,  3.5,  7.5,  10.,  5., IsPbPb ? 25000. : 4000.,1};
   fHistPidQA = new THnSparseF(name.Data(), title.Data(), kNdim, binsHistQA, xminHistQA, xmaxHistQA);
 
   BinLogAxis(fHistPidQA, 0);
@@ -97,6 +99,20 @@ void AliSkimmedDataAnalysisMaker::bookHistogram()
   Double_t xmaxHist_separation_power[kNdim_separation_power] = {15., 2000.,  1.,  100,  4.};
   fHistPid_separation_power = new THnSparseF("fHistPid_separation_power","fHistPid_separation_power", kNdim_separation_power, binsHist_separation_power, xminHist_separation_power, xmaxHist_separation_power);
   
+
+  //tree for BBfit analysis
+
+
+  fTree2 = new TTree("fTree2", "Tree for analysis of BetheBloch fit");
+  fTree2->Branch("p", &p);
+  fTree2->Branch("oneoverpt",&oneoverpt);
+  fTree2->Branch("rawtpcsignal",&rawtpcsignal);
+  fTree2->Branch("BG", &BG);
+  fTree2->Branch("eta",&eta);
+  fTree2->Branch("multiplicty",&multiplicty);
+  fTree2->Branch("centrality", &centrality);
+  fTree2->Branch("PDGcode", &PDGcode);
+
 
 
   
@@ -168,9 +184,11 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
       Double_t dca_r = -999;
       Double_t dca_z = -999;
       Double_t nCrossRows = -999;
+      Bool_t isPileUp = kFALSE;
 
 
       Double_t processedTPCsignal[8] = { 1,1,1,1,1,1,1,1 };
+      Double_t deltaTPCsignal[8] = { -111,-111,-111,-111,-111,-111,-111,-111 };
       //V0
       for (Int_t track = 0; track < 2; track++) {
        
@@ -208,10 +226,11 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
 	    precin=V0ana->track0P;
 	    tanTheta=V0ana->track0Eta;    
 	    tpccluster=V0ana->track0_fTPCsignalN;
-            tanTheta=V0ana->track0Eta;    
-            dca_r = V0ana->dca0_r;
+      tanTheta=V0ana->track0Eta;    
+      dca_r = V0ana->dca0_r;
 	    dca_z = V0ana->dca0_z;
  	    nCrossRows = V0ana->nCrossRows0;
+      isPileUp = V0ana->isPileUp;
 
 	    tpcQA[0]=V0ana->track0tpcNsigma_el;
 	    tofQA[0]=V0ana->track0tofNsigmaElectron;
@@ -237,14 +256,19 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
             tpcQA[7] = -999;
             tofQA[7] = -999;
     
-	    processedTPCsignal[0] = V0ana->track0CorrectedTPCSignalV0_el;
+	          processedTPCsignal[0] = V0ana->track0CorrectedTPCSignalV0_el;
             processedTPCsignal[1] = V0ana->track0CorrectedTPCSignalV0_pi;
-	    processedTPCsignal[2] = V0ana->track0CorrectedTPCSignalV0_ka;
+	          processedTPCsignal[2] = V0ana->track0CorrectedTPCSignalV0_ka;
             processedTPCsignal[3] = V0ana->track0CorrectedTPCSignalV0_pro;
             processedTPCsignal[5] = -999;	    
             processedTPCsignal[6] = -999;
             processedTPCsignal[7] = -999;
-	    
+/*
+            deltaTPCsignal[0] = (tpcsignal - V0ana->track0GetPileupValue) - V0ana->track0ExpectedTPCSignalV0_el;
+            deltaTPCsignal[1] = (tpcsignal - V0ana->track0GetPileupValue) - V0ana->track0ExpectedTPCSignalV0_pi;
+            deltaTPCsignal[2] = (tpcsignal - V0ana->track0GetPileupValue) - V0ana->track0ExpectedTPCSignalV0_ka;
+            deltaTPCsignal[3] = (tpcsignal - V0ana->track0GetPileupValue) - V0ana->track0ExpectedTPCSignalV0_pro;
+	*/    
 	  }
 	else if(track==1)
 	  {
@@ -255,6 +279,7 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
             dca_r = V0ana->dca1_r;
             dca_z = V0ana->dca1_z;
             nCrossRows = V0ana->nCrossRows1;
+            isPileUp = V0ana->isPileUp;
 
 	    tpcQA[0]=V0ana->track1tpcNsigma_el;
 	    tofQA[0]=V0ana->track1tofNsigmaElectron;
@@ -287,7 +312,12 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
             processedTPCsignal[5] = -999;           
             processedTPCsignal[6] = -999;
             processedTPCsignal[7] = -999;
-
+/*
+            deltaTPCsignal[0] = (tpcsignal - V0ana->track1GetPileupValue) - V0ana->track1ExpectedTPCSignalV0_el;
+            deltaTPCsignal[1] = (tpcsignal - V0ana->track1GetPileupValue) - V0ana->track1ExpectedTPCSignalV0_pi;
+            deltaTPCsignal[2] = (tpcsignal - V0ana->track1GetPileupValue) - V0ana->track1ExpectedTPCSignalV0_ka;
+            deltaTPCsignal[3] = (tpcsignal - V0ana->track1GetPileupValue) - V0ana->track1ExpectedTPCSignalV0_pro;
+*/
 	  }
 	
 
@@ -296,6 +326,7 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
       if(TMath::Abs(dca_r) > 3.0) continue;
       if(TMath::Abs(dca_z) > 3.0) continue;
       if(nCrossRows < 70) continue;
+      if(isPileUp=1) continue;
 	
 	if (isTreeK0) {
 	  particleID = 2; //pion
@@ -345,14 +376,15 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName)
 	
 	// id 5 is just again Kaons in restricted eta range
 	processedTPCsignal[4] = processedTPCsignal[2];
+  deltaTPCsignal[4] = deltaTPCsignal[2];
 
 	for(Int_t iPart = 0; iPart < numCases; iPart++) {
 	  // Only accept "Kaons" within |eta| < 0.2 for index 4 (eta ~ tanTheta in this eta range)
 	  if (iPart == 4 && abs(tanTheta) > 0.2)
 	    continue;
 
-	  Double_t vecHistQA[7] = {precin, processedTPCsignal[iPart], (Double_t)particleID, (Double_t)iPart, tpcQA[iPart], tofQA[iPart],
-				   (Double_t)nTotESDTracks};
+	  Double_t vecHistQA[8] = {precin, processedTPCsignal[iPart], (Double_t)particleID, (Double_t)iPart, tpcQA[iPart], tofQA[iPart],
+				   (Double_t)nTotESDTracks,TMath::Abs(tanTheta)};
 	  //cout << vecHistQA[0] << "\t" <<  vecHistQA[1] << "\t" <<  vecHistQA[2] << "\t" <<  vecHistQA[3] << "\t" <<  vecHistQA[4] << "\t" <<  vecHistQA[5] <<  endl;
 	  fHistPidQA->Fill(vecHistQA);
 
@@ -405,12 +437,14 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName){
       Double_t dca_r = -999;
       Double_t dca_z = -999;
       Double_t nCrossRows = -999;
+      Bool_t isPileUp = kFALSE;
 
       numberOfCluster = TrackAna->fTPCsignalN;
       eta = TrackAna->trackEta;
       dca_r = TrackAna->dca_r;
       dca_z = TrackAna->dca_z;
       nCrossRows = TrackAna->nCrossRows;
+      isPileUp = TrackAna->isPileUp;
 
 
   if (numberOfCluster < 50) continue; 
@@ -418,10 +452,12 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName){
   if(TMath::Abs(dca_r) > 3.0) continue;
   if(TMath::Abs(dca_z) > 3.0) continue;
   if(nCrossRows < 70) continue;
+  if(isPileUp ==1) continue;
 
             tpcsignal=TrackAna->fTPCsignal;
             precin=TrackAna->trackP;
             tanTheta=TrackAna->trackEta;   
+            
 
             tpcQA[0]=TrackAna->track_tpcNsigma_el;
             tofQA[0]=TrackAna->tracktofNsigmaElectron;
@@ -450,7 +486,8 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName){
 		
 
 
-	    Double_t processedTPCsignal[8] = { tpcsignal,tpcsignal, tpcsignal, tpcsignal, tpcsignal, tpcsignal,tpcsignal,tpcsignal };     
+	    Double_t processedTPCsignal[8] = { tpcsignal,tpcsignal, tpcsignal, tpcsignal, tpcsignal, tpcsignal,tpcsignal,tpcsignal };
+      Double_t deltaTPCsignal[8] = { -111,-111,-111,-111,-111,-111,-111,-111 };     
 
         processedTPCsignal[0] = TrackAna->track_CorrectedTPCSignalV0_el;
         processedTPCsignal[1] = TrackAna->track_CorrectedTPCSignalV0_pi;
@@ -459,14 +496,19 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName){
         processedTPCsignal[5] = TrackAna->track_CorrectedTPCSignalV0_deut;
         processedTPCsignal[6] = TrackAna->track_CorrectedTPCSignalV0_tri;
         processedTPCsignal[7] = TrackAna->track_CorrectedTPCSignalV0_He3;
-
+/*
+        deltaTPCsignal[0] = (tpcsignal -TrackAna->track_GetPileupValue) - TrackAna->track_ExpectedTPCSignalV0_el;
+        deltaTPCsignal[1] = (tpcsignal -TrackAna->track_GetPileupValue) - TrackAna->track_ExpectedTPCSignalV0_pi;
+        deltaTPCsignal[2] = (tpcsignal -TrackAna->track_GetPileupValue) - TrackAna->track_ExpectedTPCSignalV0_ka;
+        deltaTPCsignal[3] = (tpcsignal -TrackAna->track_GetPileupValue) - TrackAna->track_ExpectedTPCSignalV0_pro;
+*/
 
         nTotESDTracks=TrackAna->tpcTrackBeforeClean;
 
 
         // id 5 is just again Kaons in restricted eta range
-        processedTPCsignal[4] = processedTPCsignal[2]; 
-
+        processedTPCsignal[4] = processedTPCsignal[2];
+        deltaTPCsignal[4] = deltaTPCsignal[2];
 
         for(Int_t iPart = 0; iPart < numCases; iPart++) {
           // Only accept "Kaons" within |eta| < 0.2 for index 4 (eta ~ tanTheta in this eta range)
@@ -476,8 +518,8 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName){
           if (iPart == 3 && precin > 1.0){
              if(TrackAna->Nucleitrigger_OFF == 0) continue;
 }
-          Double_t vecHistQA[7] = {precin, processedTPCsignal[iPart], (Double_t)particleID, (Double_t)iPart, tpcQA[iPart], tofQA[iPart],
-                                   (Double_t)nTotESDTracks};
+          Double_t vecHistQA[8] = {precin, processedTPCsignal[iPart], (Double_t)particleID, (Double_t)iPart, tpcQA[iPart], tofQA[iPart],
+                                   (Double_t)nTotESDTracks,TMath::Abs(tanTheta)};
           //cout << vecHistQA[0] << "\t" <<  vecHistQA[1] << "\t" <<  vecHistQA[2] << "\t" <<  vecHistQA[3] << "\t" <<  vecHistQA[4] << "\t" <<  vecHistQA[5] <<  endl;
           fHistPidQA->Fill(vecHistQA);
 		}
@@ -508,16 +550,19 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track){
       Double_t dca_z = -999;
       Double_t nCrossRows = -999;
       fPtpc = -999;
+      Bool_t isPileUp = kFALSE;
 
   dca_r = TrackAna->dca_r;
   dca_z = TrackAna->dca_z;
   nCrossRows = TrackAna->nCrossRows;
+  isPileUp = TrackAna->isPileUp;
  
 
   if(TMath::Abs(TrackAna->trackEta) > 0.9) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
+    if(isPileUp ==1) continue;
 
             mh1p->Fill(dca_z);
  
@@ -535,7 +580,7 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track){
 
   if(fPtpc > 5.) continue;
 
-//  fDeDx = TrackAna->fTPCsignal - TrackAna->track_GetPileupValue;
+//  fDeDx = (TrackAna->fTPCsignal - TrackAna->track_GetPileupValue);
   fDeDx = TrackAna->fTPCsignal;
   Bool_t hasTOF     = kFALSE;  
 
@@ -597,10 +642,11 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_V0(TString filename_v0){
 
       Double_t itsClusterMult = -999;
       Double_t tpcClusterMult = -999;
-      Bool_t   isPileup =kFALSE;
+      Bool_t   isPileUp =kFALSE;
       Double_t dca_r = -999;
       Double_t dca_z = -999;
       Double_t nCrossRows = -999;
+  
 
 
         bool isTreeLambda=false;
@@ -667,6 +713,7 @@ dca_r = V0ana->dca0_r;
 dca_z = V0ana->dca0_z;
 nCrossRows = V0ana->nCrossRows0;
 fPtpc = V0ana->track0P;
+//fDeDx = (V0ana->track0_fTPCsignal - V0ana->track0GetPileupValue)d;
 fDeDx = V0ana->track0_fTPCsignal;
 //status = V0ana->track0status;
 fTanTheta = V0ana->track0Tgl;
@@ -674,6 +721,7 @@ fTPCsignalN = V0ana->track0_fTPCsignalN;
 fDeDxExpected = V0ana->track0ExpectedTPCSignalV0_pro;
 fMultiplicity = V0ana->tpcTrackBeforeClean;                                                                                                                                                                
 fTPCsignalNsubthreshold = 200;
+isPileUp = V0ana->isPileUp;
 }
 
  else if(track==1){
@@ -684,22 +732,22 @@ dca_r = V0ana->dca1_r;
 dca_z = V0ana->dca1_z;
 nCrossRows = V0ana->nCrossRows1;
 fPtpc= V0ana->track1P;
-// fDeDx = V0ana->track1CorrectedTPCSignalV0_pro;
 fDeDx = V0ana->track1_fTPCsignal;
+// fDeDx = (V0ana->track1_fTPCsignal - V0ana->track1GetPileupValue);
 //status = V0ana->track1status;
 fTanTheta = V0ana->track1Tgl;
 fTPCsignalN = V0ana->track1_fTPCsignalN;
 fDeDxExpected = V0ana->track1ExpectedTPCSignalV0_pro;
 fMultiplicity = V0ana->tpcTrackBeforeClean;                                                                                                                                                                
 fTPCsignalNsubthreshold = 200;
-
+isPileUp = V0ana->isPileUp;
 }
 
 if(TMath::Abs(etasel) > 0.9) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
-
+    if(isPileUp ==1) continue;
 
   if(fPtpc > 5.) continue;
 
@@ -732,6 +780,154 @@ fTree->Fill();
 
 
 }
+
+void AliSkimmedDataAnalysisMaker::TreeV0_BBFitAnalysis(TString filename_v0){
+
+  cout<<"!!!!!!!!!!!!!!!!!read"<<filename_v0<<endl;
+  TFile * infile2=new TFile(filename_v0.Data());
+  TTree* Tree2=(TTree*) infile2->Get("V0Flat");
+  V0FlatAna *V0ana=new V0FlatAna();
+  V0ana->Init(Tree2);
+
+for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++) 
+    {
+      if(iV0%10000==0)
+        cout<<"working on Event  "<<iV0<<endl;
+      V0ana->GetEntry(iV0);
+
+      Int_t particleID = -1;
+      Int_t  alicePID=-1;
+      Double_t tpcsignal = -1.;
+      Double_t tpcsignal_corrected = -1;
+      Double_t tanTheta = -999.;
+      Double_t precin = -1.;
+      Double_t  nTotESDTracks=-999;
+      Double_t tofNsigma=-9999;
+      Double_t tpcNsigma=-9999;
+      Double_t tpccluster=-999;
+      Double_t dca_r = -999;
+      Double_t dca_z = -999;
+      Double_t nCrossRows = -999;
+
+
+      Double_t processedTPCsignal[8] = { 1,1,1,1,1,1,1,1 };
+      Double_t deltaTPCsignal[8] = { -111,-111,-111,-111,-111,-111,-111,-111 };
+
+      for (Int_t track = 0; track < 2; track++) {
+
+
+	bool isTreeK0=false;
+	bool isTreeGamma=false;
+	bool isTreeLambda=false;
+	bool isTreeALambda=false;
+
+	if(V0ana->K0Like>0.8&&(V0ana->cleanK0==1))
+	  {
+	    isTreeK0=true;   
+	  }
+	if(V0ana->ELike>0.9&&(V0ana->cleanGamma==1))
+	  {
+	    isTreeGamma=true;   
+	  }
+
+	if(V0ana->LLike>0.8&&(V0ana->cleanLambda==1))
+	  {
+	    isTreeLambda=true;   
+	  }
+
+	if(V0ana->ALLike>0.8&&(V0ana->cleanALambda==1))
+	  {
+	    isTreeALambda=true;   
+	  }
+
+	if(!(isTreeK0||isTreeGamma||isTreeLambda||isTreeALambda)) continue;
+
+	if(track==0)
+	  {
+
+  tpccluster=V0ana->track0_fTPCsignalN;
+  p = V0ana->track0P;
+  oneoverpt = 1;
+  rawtpcsignal = V0ana->track0_fTPCsignal;
+  eta = V0ana->track0Eta;
+  multiplicty = V0ana->tpcTrackBeforeClean;
+  centrality = 1;
+  dca_r = V0ana->dca0_r;
+	dca_z = V0ana->dca0_z;
+  nCrossRows = V0ana->nCrossRows0;
+  
+	  }
+	else if(track==1)
+	  {
+
+ 	tpccluster=V0ana->track1_fTPCsignalN;
+  p = V0ana->track1P;
+  oneoverpt = 1;
+  rawtpcsignal = V0ana->track1_fTPCsignal;
+  eta = V0ana->track1Eta;
+  multiplicty = V0ana->tpcTrackBeforeClean;
+  centrality = 1;
+  dca_r = V0ana->dca1_r;
+  dca_z = V0ana->dca1_z;
+  nCrossRows = V0ana->nCrossRows1;
+
+	  }
+	
+
+      if (tpccluster < 50) continue;
+      if(TMath::Abs(dca_r) > 3.0) continue;
+      if(TMath::Abs(dca_z) > 3.0) continue;
+      if(nCrossRows < 70) continue;
+	
+	if (isTreeK0) {
+	  particleID = 2; //pion
+	  //	  alicePID=AliPID::kPion;
+	  PDGcode=2;
+	  
+	} else if (isTreeGamma) {
+	  particleID = 1; // electron
+	  //  alicePID=AliPID::kElectron;
+	  PDGcode=0;//AliPID::kElectron;
+	} else if (isTreeLambda) {
+	  if (track == 0) {
+	    particleID = 3; // proton
+	    //	    alicePID=AliPID::kProton;
+	    PDGcode=4.;
+	  } else {
+	    particleID = 2; // pion
+	    //	    alicePID=AliPID::kPion;
+	    PDGcode=2;//AliPID::kPion;
+	  }
+	}
+	else if (isTreeALambda) {
+	  if (track == 0) {
+	    particleID = 2; // pion
+	    //	    alicePID=AliPID::kPion;
+	    PDGcode=2.;//AliPID::kPion;
+
+	  } else {
+	    particleID = 3; // proton
+	    //alicePID=AliPID::kProton;
+	    PDGcode=4;;
+	  }
+	}
+	       
+  fTree2->Fill();
+
+}    // end track loop
+
+    } // end treeloop
+
+
+} //end function
+
+
+void AliSkimmedDataAnalysisMaker::TreePrimary_BBFitAnalysis(TString filename_track){
+
+
+
+}
+
 void AliSkimmedDataAnalysisMaker::WriteHistogram()
 {
 
@@ -758,8 +954,13 @@ void AliSkimmedDataAnalysisMaker::WriteHistogram()
 
     mOutputFile_eta->cd();
     fTree->Write();
+
     mh1p->Write();
     mOutputFile_eta->Close();
+
+    mOutputFile_BBFitAnalysis->cd();
+    fTree2->Write();
+    mOutputFile_BBFitAnalysis->Close();
 }
   
 void AliSkimmedDataAnalysisMaker::BinLogAxis(THnSparseF *h, Int_t axisNumber)
@@ -791,3 +992,5 @@ void AliSkimmedDataAnalysisMaker::SetAxisNamesFromTitle(const THnSparseF *h)
     h->GetAxis(i)->SetName(h->GetAxis(i)->GetTitle());
   }
 }
+
+

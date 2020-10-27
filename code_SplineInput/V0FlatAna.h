@@ -35,6 +35,7 @@ Double_t cleanALambda;
 Double_t tpcTrackBeforeClean;
 //Double_t triggerMask;
 //Double_t isMinBias;
+Double_t isPileUp;
 
 //Double_t track0status;
 Double_t track0_hasTOF;
@@ -57,8 +58,8 @@ Double_t track0tpcNsigma_ka;
 Double_t track0tpcNsigma_pi;
 Double_t track0ExpectedTPCSignalV0_el;
 Double_t track0ExpectedTPCSignalV0_pro;
-Double_t track0ExpectedTPCSignalV0_ka;
-Double_t track0ExpectedTPCSignalV0_pi;
+//Double_t track0ExpectedTPCSignalV0_ka;
+//Double_t track0ExpectedTPCSignalV0_pi;
 Double_t track0CorrectedTPCSignalV0_el;
 Double_t track0CorrectedTPCSignalV0_pro;
 Double_t track0CorrectedTPCSignalV0_ka;
@@ -90,8 +91,8 @@ Double_t track1tpcNsigma_ka;
 Double_t track1tpcNsigma_pi;
 Double_t track1ExpectedTPCSignalV0_el;
 Double_t track1ExpectedTPCSignalV0_pro;
-Double_t track1ExpectedTPCSignalV0_ka;
-Double_t track1ExpectedTPCSignalV0_pi;
+//Double_t track1ExpectedTPCSignalV0_ka;
+//Double_t track1ExpectedTPCSignalV0_pi;
 Double_t track1CorrectedTPCSignalV0_el;
 Double_t track1CorrectedTPCSignalV0_pro;
 Double_t track1CorrectedTPCSignalV0_ka;
@@ -123,6 +124,7 @@ TBranch *b_cleanALambda;				//!
 TBranch *b_tpcTrackBeforeClean;				//!
 //TBranch *b_triggerMask;					//!
 //TBranch *b_isMinBias;					//!
+TBranch *b_isPileUp;            //!
 
 TBranch *b_track0status;				//!
 TBranch *b_track0_hasTOF;				//!
@@ -145,8 +147,8 @@ TBranch *b_track0tpcNsigma_ka;				//!
 TBranch *b_track0tpcNsigma_pi;				//!
 TBranch *b_track0ExpectedTPCSignalV0_el;		//!
 TBranch *b_track0ExpectedTPCSignalV0_pro;		//!
-TBranch *b_track0ExpectedTPCSignalV0_ka;		//!
-TBranch *b_track0ExpectedTPCSignalV0_pi;		//!
+//TBranch *b_track0ExpectedTPCSignalV0_ka;		//!
+//TBranch *b_track0ExpectedTPCSignalV0_pi;		//!
 TBranch *b_track0CorrectedTPCSignalV0_el;		//!
 TBranch *b_track0CorrectedTPCSignalV0_pro;		//!
 TBranch *b_track0CorrectedTPCSignalV0_ka;		//!
@@ -178,8 +180,8 @@ TBranch *b_track1tpcNsigma_ka;				//!
 TBranch *b_track1tpcNsigma_pi;				//!
 TBranch *b_track1ExpectedTPCSignalV0_el;		//!
 TBranch *b_track1ExpectedTPCSignalV0_pro;		//!
-TBranch *b_track1ExpectedTPCSignalV0_ka;		//!
-TBranch *b_track1ExpectedTPCSignalV0_pi;		//!
+//TBranch *b_track1ExpectedTPCSignalV0_ka;		//!
+//TBranch *b_track1ExpectedTPCSignalV0_pi;		//!
 TBranch *b_track1CorrectedTPCSignalV0_el;		//!
 TBranch *b_track1CorrectedTPCSignalV0_pro;		//!
 TBranch *b_track1CorrectedTPCSignalV0_ka;		//!

@@ -40,12 +40,14 @@ Double_t tracktofNsigmaKaon;
 Double_t tracktofNsigmaProton;
 Double_t tracktofNsigmaPion;
 Double_t tracktofNsigmaDeuteron;
+Double_t tracktofNsigmaTrition;
+Double_t tracktofNsigmaHelium3;
 
 Double_t track_ExpectedTPCSignalV0_el;
 Double_t track_ExpectedTPCSignalV0_pi;
 Double_t track_ExpectedTPCSignalV0_pro;
-Double_t track_ExpectedTPCSignalV0_ka;
-Double_t track_ExpectedTPCSignalV0_deut;
+//Double_t track_ExpectedTPCSignalV0_ka;
+//Double_t track_ExpectedTPCSignalV0_deut;
 
 Double_t track_CorrectedTPCSignalV0_el;
 Double_t track_CorrectedTPCSignalV0_pi;
@@ -91,6 +93,7 @@ Double_t ITSRefit;
 Double_t TPCRefit;
 Double_t Nucleitrigger_OFF;
 //Double_t isMinBias;
+Double_t isPileUp;
 
 //List of Branches;
 
@@ -118,12 +121,14 @@ TBranch *b_tracktofNsigmaKaon;				//!
 TBranch *b_tracktofNsigmaProton;			//!
 TBranch *b_tracktofNsigmaPion;				//!
 TBranch *b_tracktofNsigmaDeuteron;                          //!
+TBranch  *b_tracktofNsigmaTrition;			//!
+TBranch *b_tracktofNsigmaHelium3;			//!
 
 TBranch *b_track_ExpectedTPCSignalV0_el;		//!
 TBranch *b_track_ExpectedTPCSignalV0_pi;		//!
 TBranch *b_track_ExpectedTPCSignalV0_pro;		//!
-TBranch *b_track_ExpectedTPCSignalV0_ka;		//!
-TBranch *b_track_ExpectedTPCSignalV0_deut;                //!
+//TBranch *b_track_ExpectedTPCSignalV0_ka;		//!
+//TBranch *b_track_ExpectedTPCSignalV0_deut;                //!
 
 TBranch *b_track_CorrectedTPCSignalV0_el;		//!
 TBranch *b_track_CorrectedTPCSignalV0_pi;		//!
@@ -169,6 +174,7 @@ TBranch *b_ITSRefit;					//!
 TBranch *b_TPCRefit;					//!
 TBranch *b_Nucleitrigger_OFF;				//!
 //TBranch *b_isMinBias;					//!
+TBranch *b_isPileUp;          //!
 
   TrackFlatAna();
   ~TrackFlatAna();

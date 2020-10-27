@@ -122,6 +122,7 @@ void V0FlatAna::Init(TTree *tree)
   fChain->SetBranchAddress("tpcTrackBeforeClean", &tpcTrackBeforeClean, &b_tpcTrackBeforeClean);
 //  fChain->SetBranchAddress("triggerMask", &triggerMask, &b_triggerMask);
 //  fChain->SetBranchAddress("isMinBias", &isMinBias, &b_isMinBias);
+  fChain->SetBranchAddress("isPileUp",&isPileUp,&b_isPileUp);
 
   //  fChain->SetBranchAddress("track0status", &track0status, &b_track0status);
   fChain->SetBranchAddress("track0_hasTOF", &track0_hasTOF, &b_track0_hasTOF);
@@ -144,8 +145,8 @@ void V0FlatAna::Init(TTree *tree)
   fChain->SetBranchAddress("track0tpcNsigma_pi", &track0tpcNsigma_pi, &b_track0tpcNsigma_pi);
   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_el", &track0ExpectedTPCSignalV0_el, &b_track0ExpectedTPCSignalV0_el);
   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pro", &track0ExpectedTPCSignalV0_pro, &b_track0ExpectedTPCSignalV0_pro);
-  fChain->SetBranchAddress("track0ExpectedTPCSignalV0_ka", &track0ExpectedTPCSignalV0_ka, &b_track0ExpectedTPCSignalV0_ka);
-  fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pi", &track0ExpectedTPCSignalV0_pi, &b_track0ExpectedTPCSignalV0_pi);
+  //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_ka", &track0ExpectedTPCSignalV0_ka, &b_track0ExpectedTPCSignalV0_ka);
+  //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pi", &track0ExpectedTPCSignalV0_pi, &b_track0ExpectedTPCSignalV0_pi);
   fChain->SetBranchAddress("track0CorrectedTPCSignalV0_el", &track0CorrectedTPCSignalV0_el, &b_track0CorrectedTPCSignalV0_el);
   fChain->SetBranchAddress("track0CorrectedTPCSignalV0_pro", &track0CorrectedTPCSignalV0_pro, &b_track0CorrectedTPCSignalV0_pro);
   fChain->SetBranchAddress("track0CorrectedTPCSignalV0_ka", &track0CorrectedTPCSignalV0_ka, &b_track0CorrectedTPCSignalV0_ka);
@@ -177,8 +178,8 @@ void V0FlatAna::Init(TTree *tree)
   fChain->SetBranchAddress("track1tpcNsigma_pi", &track1tpcNsigma_pi, &b_track1tpcNsigma_pi);
   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_el", &track1ExpectedTPCSignalV0_el, &b_track1ExpectedTPCSignalV0_el);
   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pro", &track1ExpectedTPCSignalV0_pro, &b_track1ExpectedTPCSignalV0_pro);
-  fChain->SetBranchAddress("track1ExpectedTPCSignalV0_ka", &track1ExpectedTPCSignalV0_ka, &b_track1ExpectedTPCSignalV0_ka);
-  fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pi", &track1ExpectedTPCSignalV0_pi, &b_track1ExpectedTPCSignalV0_pi);
+  //fChain->SetBranchAddress("track1ExpectedTPCSignalV0_ka", &track1ExpectedTPCSignalV0_ka, &b_track1ExpectedTPCSignalV0_ka);
+  //fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pi", &track1ExpectedTPCSignalV0_pi, &b_track1ExpectedTPCSignalV0_pi);
   fChain->SetBranchAddress("track1CorrectedTPCSignalV0_el", &track1CorrectedTPCSignalV0_el, &b_track1CorrectedTPCSignalV0_el);
   fChain->SetBranchAddress("track1CorrectedTPCSignalV0_pro", &track1CorrectedTPCSignalV0_pro, &b_track1CorrectedTPCSignalV0_pro);
   fChain->SetBranchAddress("track1CorrectedTPCSignalV0_ka", &track1CorrectedTPCSignalV0_ka, &b_track1CorrectedTPCSignalV0_ka);

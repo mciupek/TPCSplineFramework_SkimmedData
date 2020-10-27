@@ -19,7 +19,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
 
   
  public:
-  AliSkimmedDataAnalysisMaker(const char*);
+  AliSkimmedDataAnalysisMaker(const char*,const char*);
   //const char*
   virtual ~AliSkimmedDataAnalysisMaker();
 
@@ -32,13 +32,17 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   void execute();
   void BinLogAxis(THnSparseF *h, Int_t axisNumber);
   void SetAxisNamesFromTitle(const THnSparseF *h);
+  void TreeV0_BBFitAnalysis(TString filename_v0);
+  void TreePrimary_BBFitAnalysis(TString filename_track);
   
 
  private:
   TFile*  mOutputFile;
   TFile*  mOutputFile_eta;
+  TFile * mOutputFile_BBFitAnalysis;
 
  TTree* fTree;
+ TTree* fTree2;
  TH2F*  mh2pTdEdxVspT;
 
  TH2F *mh2pTdEdxVspT_K0Like;
@@ -68,7 +72,19 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t fTPCsignalNsubthreshold;
   Double_t fNumTPCClustersInActiveVolume;
   Double_t fPIDtype;
-  Double_t fMultiplicity;  
+  Double_t fMultiplicity;
+
+//tree varialbe BB fit check
+
+  Double_t p;
+  Double_t oneoverpt;
+  Double_t rawtpcsignal;
+  Double_t BG;
+  Double_t eta;
+  Double_t multiplicty;
+  Double_t centrality;
+  Double_t PDGcode;
+
 
 
   ClassDef(AliSkimmedDataAnalysisMaker,1);
