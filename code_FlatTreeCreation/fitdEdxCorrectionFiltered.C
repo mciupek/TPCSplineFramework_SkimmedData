@@ -7,12 +7,27 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
   AliDrawStyle::SetDefaults();
   AliDrawStyle::ApplyStyle("figTemplate");
   gStyle->SetOptTitle(1);
-  SetUpNewSpline(265596);
-  InitTree(1,1,265596);
+  SetUpNewSpline(295585);
+  InitTree(1,1,295585);
 //  LoadFits();
   cacheCleanV0();
   cacheCleanTrack();
   cacheEventFlat();
+*/
+
+/*
+  //gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
+gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
+
+  .L fitdEdxCorrectionFiltered.C+
+  AliDrawStyle::SetDefaults();
+  AliDrawStyle::ApplyStyle("figTemplate");
+  gStyle->SetOptTitle(1);
+  SetUpNewSpline(295585);
+  InitTree(1,1,295585);
+//  LoadFits();
+  cacheCleanV0_SplineStudies();
+  cacheCleanTrack_SplineStudies();
 */
 
 
@@ -59,24 +74,20 @@ Int_t pidHash=0;
 
 TMatrixD projectionInfo(5,5);
 void InitTree(Int_t nChunks, Int_t buildIndex=1, Int_t run=296690);
-void MakeHistograms(Int_t nPoints=100000000);
 
 void fitdEdxCorrectionFiltered(){
   ::Info("fitdEdxCorrectionFiltered","Dummy");
 }
 
-void fitPileUpCorection(Int_t nChunks){
-  InitTree(nChunks);
-  MakeHistograms();
-}
 
 void enablePileUpCorrection(){
   AliPIDtools::GetTPCPID(pidHash).SetPileupCorrectionObject(AliPIDtools::GetTPCPID(pidHash).GetPileupCorrectionFromFile("/lustre/nyx/alice/users/mciupek/TPCSpline/FilteredTree/dEdxFitLight_LHC18rpass3.root"));
 }
 
 void SetUpNewSpline(Int_t run){
-  Int_t passNumber  =2;
-  TString recoPass="pass2";
+
+  Int_t passNumber  = 3;
+  TString recoPass="pass3";
 
 //  Char_t *  spline_path="/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/splines/TPCPIDResponseOADB_2020_06_22_18r_pass3_It4_woPileup.root";
 //  Char_t *  eta_crrection_path="/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/splines/TPCetaMaps_2020_06_22_18r_pass3_It4_woPileup.root";
@@ -86,15 +97,19 @@ void SetUpNewSpline(Int_t run){
 
   AliESDEvent ev;
   AliPIDResponse *fPIDResponse = new AliPIDResponse;
+
   fPIDResponse->SetUseTPCMultiplicityCorrection(false);
   fPIDResponse->SetUseTPCEtaCorrection(false);
-  fPIDResponse->SetUseTPCPileupCorrection();
-//  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/nyx/alice//users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withoutpileup/TPCPIDResponseOADB_2020_08_13_18q_pass3_It3.root");
-//  fPIDResponse->SetCustomTPCetaMaps("/lustre/nyx/alice//users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withoutpileup/TPCetaMaps_2020_08_13_18q_pass3_It3.root");
+  fPIDResponse->SetUseTPCPileupCorrection(false);
+  
+  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCPIDResponseOADB_2020_10_13_18q_pass3_It7.root");
+  fPIDResponse->SetCustomTPCetaMaps("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCetaMaps_2020_10_13_18q_pass3_It7.root");
   fPIDResponse->SetOADBPath("$ALICE_PHYSICS/OADB/");
   fPIDResponse->InitialiseEvent(&ev,passNumber, recoPass, run);
   AliPIDtools::pidTPC[1]=&(fPIDResponse->GetTPCResponse());
   AliPIDtools::pidAll[1]=fPIDResponse;
+
+
 }
 
 
@@ -206,21 +221,21 @@ void makeAliasesTracks(TTree *tree){
   tree->SetAlias("track_tpcNsigma_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1)",1));
   tree->SetAlias("track_tpcNsigma_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1)",1));
 
-  tree->SetAlias("track_ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x0,0+0)",1));
-  tree->SetAlias("track_ExpectedTPCSignalV0_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x7,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignalV0_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x7,0+0)",1));
 
-  tree->SetAlias("track_CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_deut",Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x0,1+0)",1));
-  tree->SetAlias("track_CorrectedTPCSignalV0_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x0,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_deut",Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x7,1+0)",1));
+  tree->SetAlias("track_CorrectedTPCSignalV0_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x7,1+0)",1));
 
   tree->SetAlias("track_GetPileupValue",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x8,1+0)",1));
   tree->SetAlias("Nucleitrigger_OFF","selectionPtMask>0");
@@ -281,6 +296,16 @@ void makeAliasesV0(){
   treeV0->SetAlias("track1tofNsigmaKaon","tofNsigma1.fElements[3]");
   treeV0->SetAlias("track1tofNsigmaProton","tofNsigma1.fElements[4]");
 
+  treeV0->SetAlias("track0itsNsigmaElectron","itsNsigma0.fElements[0]");
+  treeV0->SetAlias("track0itsNsigmaPion","itsNsigma0.fElements[2]");
+  treeV0->SetAlias("track0itsNsigmaKaon","itsNsigma0.fElements[3]");
+  treeV0->SetAlias("track0itsNsigmaProton","itsNsigma0.fElements[4]");
+
+  treeV0->SetAlias("track1itsNsigmaElectron","itsNsigma1.fElements[0]");
+  treeV0->SetAlias("track1itsNsigmaPion","itsNsigma1.fElements[2]");
+  treeV0->SetAlias("track1itsNsigmaKaon","itsNsigma1.fElements[3]");
+  treeV0->SetAlias("track1itsNsigmaProton","itsNsigma1.fElements[4]");
+
   //
 //  treeV0->SetAlias("track0tpcNsigma_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0)",pidHash));
 //  treeV0->SetAlias("track0tpcNsigma_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0)",pidHash));
@@ -297,10 +322,10 @@ void makeAliasesV0(){
 //  treeV0->SetAlias("track0ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x1, 0,0+0)",pidHash));
 //  treeV0->SetAlias("track0ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x1, 0,0+0)",pidHash));
 
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x1, 1,0+0)",pidHash));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x1, 1,0+0)",pidHash));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x1, 1,0+0)",pidHash));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x1, 1,0+0)",pidHash));
+//  treeV0->SetAlias("track1ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x1, 1,0+0)",pidHash));
+//  treeV0->SetAlias("track1ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x1, 1,0+0)",pidHash));
+// treeV0->SetAlias("track1ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x1, 1,0+0)",pidHash));
+//  treeV0->SetAlias("track1ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x1, 1,0+0)",pidHash));
 
   // for the corercted new splines,
   treeV0->SetAlias("track0tpcNsigma_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0)",1));
@@ -313,25 +338,25 @@ void makeAliasesV0(){
   treeV0->SetAlias("track1tpcNsigma_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,1+0)",1));
   treeV0->SetAlias("track1tpcNsigma_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0)",1));
 
-  treeV0->SetAlias("track0ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x0, 0,0+0)",1));
-  treeV0->SetAlias("track0ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x0, 0,0+0)",1));
-  treeV0->SetAlias("track0ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x0, 0,0+0)",1));
-  treeV0->SetAlias("track0ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x0, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x7, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x7, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x7, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x7, 0,0+0)",1));
 
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x0, 1,0+0)",1));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x0, 1,0+0)",1));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x0, 1,0+0)",1));
-  treeV0->SetAlias("track1ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x0, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x7, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x7, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x7, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x7, 1,0+0)",1));
 
-  treeV0->SetAlias("track0CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x0, 0,1+0)",1));
-  treeV0->SetAlias("track0CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x0, 0,1+0)",1));
-  treeV0->SetAlias("track0CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x0, 0,1+0)",1));
-  treeV0->SetAlias("track0CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x0, 0,1+0)",1));
+  treeV0->SetAlias("track0CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x7, 0,1+0)",1));
+  treeV0->SetAlias("track0CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x7, 0,1+0)",1));
+  treeV0->SetAlias("track0CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x7, 0,1+0)",1));
+  treeV0->SetAlias("track0CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x7, 0,1+0)",1));
 
-  treeV0->SetAlias("track1CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x0, 1,1+0)",1));
-  treeV0->SetAlias("track1CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x0, 1,1+0)",1));
-  treeV0->SetAlias("track1CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x0, 1,1+0)",1));
-  treeV0->SetAlias("track1CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x0, 1,1+0)",1));
+  treeV0->SetAlias("track1CorrectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x7, 1,1+0)",1));
+  treeV0->SetAlias("track1CorrectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x7, 1,1+0)",1));
+  treeV0->SetAlias("track1CorrectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x7, 1,1+0)",1));
+  treeV0->SetAlias("track1CorrectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x7, 1,1+0)",1));
 
   treeV0->SetAlias("track0GetPileupValue",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x8, 0,1+0)",1));
   treeV0->SetAlias("track1GetPileupValue",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x8, 1,1+0)",1));
@@ -445,7 +470,7 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
     //"run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
     //"gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
     "v0.fPointAngle:kf.fChi2:K0Like:ELike:LLike:ALLike:cleanK0:cleanGamma:cleanLambda:cleanALambda:track0status:track1status:track0_hasTOF:track1_hasTOF:"
-    "track0.fTPCsignal:track1.fTPCsignal:track0.fTPCsignalN:track1.fTPCsignalN:type:"
+    "track0.fTPCsignal:track1.fTPCsignal:track0.fTPCsignalN:track1.fTPCsignalN:type:track0.fITSsignal:track1.fITSsignal:"
     "track0P:track0Pt:track0Eta:track0Phi:track0Px:track0Py:track0Pz:track0Tgl:dca0_r:dca0_z:nCrossRows0:tpc_cls0:"
     "track1P:track1Pt:track1Eta:track1Phi:track1Px:track1Py:track1Pz:track1Tgl:dca1_r:dca1_z:nCrossRows1:tpc_cls1:"
     "track0tofNsigmaElectron:track0tofNsigmaPion:track0tofNsigmaKaon:track0tofNsigmaProton:"
@@ -461,10 +486,10 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
 //    "track1tpcNsigma_corrected_el:track1tpcNsigma_corrected_pi:track1tpcNsigma_corrected_ka:track1tpcNsigma_corrected_pro:"
 //    "track0ExpectedTPCSignalV0_corrected_el:track0ExpectedTPCSignalV0_corrected_pi:track0ExpectedTPCSignalV0_corrected_ka:track0ExpectedTPCSignalV0_corrected_pro:"
 //    "track1ExpectedTPCSignalV0_corrected_el:track1ExpectedTPCSignalV0_corrected_pi:track1ExpectedTPCSignalV0_corrected_ka:track1ExpectedTPCSignalV0_corrected_pro:"
-    "centV0:centITS0:centITS1:tpcClusterMult:multSSD:multSDD:tpcTrackBeforeClean:triggerMask:isMinBias";                    /// to add QA variables
+    "centV0:centITS0:centITS1:tpcClusterMult:multSSD:multSDD:tpcTrackBeforeClean:triggerMask:isMinBias:isPileUp";                    /// to add QA variables
 
   AliPIDtools::SetFilteredTreeV0(treeClean);
-  AliTreePlayer::MakeCacheTreeChunk(treeClean,cacheVariables.Data(),"V0tree.root","V0Flat","1",entries,firstEntry,chunkSize);
+  AliTreePlayer::MakeCacheTreeChunk(treeClean,cacheVariables.Data(),"V0tree.root","V0Flat","isMinBias==1",entries,firstEntry,chunkSize);
   TFile *fV0Clean= new TFile("V0tree.root","update");
   treeClean->Write("V0s");
   fV0Clean->Flush();
@@ -502,7 +527,7 @@ void cacheEventFlat(){
                           "multV0A:multV0C:multT0A:multT0C:multITSA:multITSC:"
                           "multV0A0:multV0C0:multV0A1:multV0C1:multITSA0:multITSC0:multITSA1:multITSC1:"
                           "centV0:centITS0:centITS1";                    /// to add QA variables
-  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","1");
+  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","isMinBias==1");
    ::Info("cacheEventFlat","END");
    timer.Print();
 }
@@ -511,6 +536,7 @@ void cacheCleanTrack(){
    ::Info("cacheCleanTrack","BEGIN");
    timer.Start();
   tree->SetAlias("trackP","esdTrack.fIp.P()");
+  tree->SetAlias("trackPt","esdTrack.fIp.Pt()");
   tree->SetAlias("tgl","esdTrack.fP[3]");
   tree->SetAlias("fTPCsignal","esdTrack.fTPCsignal");
   tree->SetAlias("trackEta","esdTrack.Eta()");
@@ -523,33 +549,43 @@ void cacheCleanTrack(){
   tree->SetAlias("tracktofNsigmaTrition","tofNsigma.fElements[6]");
   tree->SetAlias("tracktofNsigmaHelium3","tofNsigma.fElements[7]");
 
+  tree->SetAlias("trackitsNsigmaElectron","itsNsigma.fElements[0]");
+  tree->SetAlias("trackitsNsigmaPion","itsNsigma.fElements[2]");
+  tree->SetAlias("trackitsNsigmaKaon","itsNsigma.fElements[3]");
+  tree->SetAlias("trackitsNsigmaProton","itsNsigma.fElements[4]");
+  tree->SetAlias("trackitsNsigmaDeuteron","itsNsigma.fElements[5]");
+  tree->SetAlias("trackitsNsigmaTrition","itsNsigma.fElements[6]");
+  tree->SetAlias("trackitsNsigmaHelium3","itsNsigma.fElements[7]");
+
   tree->SetAlias("isMinBias","triggerMask&(0x1)");
   tree->SetAlias("isPileUp", "(multSDD+multSSD) < (-3000 +0.0099*tpcClusterMult +9.426e-10*tpcClusterMult*tpcClusterMult)");
   tree->SetAlias("tpc_cls","esdTrack.fTPCncls");
 
   TString cacheVariables=""
-                          "fTPCsignal:esdTrack.fITSsignal:esdTrack.fTRDsignal:esdTrack.fTPCsignalN:trackP:tgl:trackEta:tpc_cls:ntracks:trackstatus:"
+                          "fTPCsignal:esdTrack.fITSsignal:esdTrack.fTRDsignal:esdTrack.fTPCsignalN:trackP:trackPt:tgl:trackEta:tpc_cls:ntracks:trackstatus:"
                           "track_tpcNsigma_el:track_tpcNsigma_pi:track_tpcNsigma_ka:track_tpcNsigma_pro:track_tpcNsigma_deut:track_tpcNsigma_tri:track_tpcNsigma_He3:"
                           "tracktofNsigmaElectron:tracktofNsigmaPion:tracktofNsigmaKaon:tracktofNsigmaProton:tracktofNsigmaDeuteron:tracktofNsigmaTrition:tracktofNsigmaHelium3:"
                           "track_ExpectedTPCSignalV0_el:track_ExpectedTPCSignalV0_pi:track_ExpectedTPCSignalV0_ka:track_ExpectedTPCSignalV0_pro:track_ExpectedTPCSignalV0_deut:"
                           "track_ExpectedTPCSignalV0_tri:track_ExpectedTPCSignalV0_He3:"
-		          "track_CorrectedTPCSignalV0_el:track_CorrectedTPCSignalV0_pi:track_CorrectedTPCSignalV0_ka:track_CorrectedTPCSignalV0_pro:track_CorrectedTPCSignalV0_deut:"
+		                      "track_CorrectedTPCSignalV0_el:track_CorrectedTPCSignalV0_pi:track_CorrectedTPCSignalV0_ka:track_CorrectedTPCSignalV0_pro:track_CorrectedTPCSignalV0_deut:"
                           "track_CorrectedTPCSignalV0_tri:track_CorrectedTPCSignalV0_He3:"
                           "track_GetPileupValue:dca_r:dca_z:nCrossRows:"
-			  "run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
+			                    "run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
                           //"gid:shiftM:nPileUpPrim:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
                           "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
                           "multSSD:multSDD:multSPD:multV0:multT0:spdvz:itsTracklets:tpcMult:tpcTrackBeforeClean:" /// raw multiplicities
                           "centV0:centITS0:centITS1:"
-			  "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias";                    /// to add QA variables
+			                    "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias:isPileUp";                    /// to add QA variables
 
-  AliTreePlayer::MakeCacheTree(tree,cacheVariables.Data(),"CleanTrack.root","CleanTrackFlat","1");
+  AliTreePlayer::MakeCacheTree(tree,cacheVariables.Data(),"CleanTrack.root","CleanTrackFlat","isMinBias==1");
  ::Info("cacheTrackHighMass","END");
    timer.Print();
 
 
 
 }
+
+
 
 
 void cacheTrackHighMass(){
@@ -573,11 +609,13 @@ void cacheTrackHighMass(){
 
 void InitTree(Int_t nChunks, Int_t buildIndex, Int_t run) {
   AliPIDtools pid;
-  pidHash = pid.LoadPID(run, 2, "pass2", 0);
-  // locad tree and make aliases
+  //pidHash = pid.LoadPID(run, 3, "pass3", 0);
+   //locad tree and make aliases
   tree = AliXRDPROOFtoolkit::MakeChain("filtered.list", "highPt", 0, nChunks);
   treeV0 = AliXRDPROOFtoolkit::MakeChain("filtered.list", "V0s", 0, nChunks);
   treeEvent = AliXRDPROOFtoolkit::MakeChain("filtered.list", "events", 0, nChunks);
+  AliPIDtools::SetFilteredTree(tree);
+  AliPIDtools::SetFilteredTreeV0(treeV0);
   if (treeEvent->GetEntries()<=0) treeEvent=NULL;
   tree->SetCacheSize(500000000);
   treeV0->SetCacheSize(500000000);
@@ -607,416 +645,4 @@ void InitTree(Int_t nChunks, Int_t buildIndex, Int_t run) {
   treeV0->SetAlias("pidHash",Form("(%d+0)",pidHash));
   //tree->SetAlias("primMult","SPDVertex.fNContributors");
   //
-  AliPIDtools::SetFilteredTree(tree);
-  AliPIDtools::SetFilteredTreeV0(treeV0);
-
-
-
-}
-
-void initFlatV0(){
-  TFile * fflatV0= TFile::Open("V0Flat.root");
-  treeV0Flat = (TTree*)fflatV0->Get("V0Flat");
-  if (treeMap!= nullptr) {
-    treeV0Flat->SetAlias("fitA", TString(treeMap->GetAlias("hdEdxAShifttMNTglDist.meanGFitA")).ReplaceAll("Center", ""));
-    treeV0Flat->SetAlias("fit0", TString(treeMap->GetAlias("hdEdxAShifttMNTglDist.meanGFit0")).ReplaceAll("Center", ""));
-    //
-    treeV0Flat->SetAlias("fitA0", TString(treeMap->GetAlias("hdEdxAShifttMNTglDist.meanGFitA")).ReplaceAll("Center", "").ReplaceAll("atgl", "abs(track0Tgl)"));
-    treeV0Flat->SetAlias("fitA1", TString(treeMap->GetAlias("hdEdxAShifttMNTglDist.meanGFitA")).ReplaceAll("Center", "").ReplaceAll("atgl", "abs(track1Tgl)"));
-  }
-    treeV0Flat->SetAlias("dEdx0ExpK0", "AliExternalTrackParam::BetheBlochAleph(track0P/0.139)");
-    treeV0Flat->SetAlias("dEdx1ExpK0", "AliExternalTrackParam::BetheBlochAleph(track1P/0.139)");
-  treeV0Flat->SetAlias("multITSTPC","((multSSD+multSDD)/2.38)");
-  treeV0Flat->SetAlias("cut1000","tpcMult-multITSTPC<1000");
-  treeV0Flat->SetAlias("cut2000","tpcMult-multITSTPC<2000");
-  treeV0Flat->SetAlias("cut4000","tpcMult-multITSTPC<4000");
-}
-
-void MakeHistograms(Int_t nPoints){
-  timer.Start();
-  ::Info("MakeHistograms","Begin");
-  //
-  TString hisString="";
-  hisString+="logdEdx:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hdEdxAShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logdEdx:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<-0.0>>hdEdxCShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   //
-   hisString+="logTotMax0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hTotMax0AShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logTotMax0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<-0.0>>hTotMax0CShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logTotMax1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hTotMax1AShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logTotMax1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<-0.0>>hTotMax1CShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logTotMax2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hTotMax2AShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-   hisString+="logTotMax2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<-0.0>>hTotMax2CShifttMNTgl(50,-0.5,0.5,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  //
-  hisString+="logQMaxMIP0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQMaxMIP0AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQMaxMIP0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQMaxMIP0CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQMaxMIP1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQMaxMIP1AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQMaxMIP1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQMaxMIP1CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQMaxMIP2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQMaxMIP2AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQMaxMIP2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQMaxMIP2CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  //
-  hisString+="logQTotMIP0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQTotMIP0AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQTotMIP0:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQTotMIP0CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQTotMIP1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQTotMIP1AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQTotMIP1:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQTotMIP1CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQTotMIP2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl>0.0>>hQTotMIP2AShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="logQTotMIP2:shiftM:nPileUpPrim:primMult:atgl:#itsMIPCutP&tgl<0.0>>hQTotMIP2CShifttMNTgl(70,-0.7,0.7,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-
-  //
-  hisString+="nFraction0:shiftM:nPileUpPrim:primMult:atgl:#1>>hFraction0ShifttMNTgl(60,0.3,1.1,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="nFraction1:shiftM:nPileUpPrim:primMult:atgl:#1>>hFraction1ShifttMNTgl(60,0.3,1.1,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="nFraction2:shiftM:nPileUpPrim:primMult:atgl:#1>>hFraction2ShifttMNTgl(60,0.3,1.1,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  hisString+="nFraction3:shiftM:nPileUpPrim:primMult:atgl:#1>>hFraction3ShifttMNTgl(60,0.3,1.1,30,-180,180,15,-100,8000,15,0,3500,15,0,1);";
-  //
-  hisString+="nFraction0:multTPCClusterN:atgl:mdEdx:#1>>hFraction0Mult_Tgl_mdEdx(60,0.3,1.1, 20,0,2,15,0,1,15,0,1);";
-  hisString+="nFraction1:multTPCClusterN:atgl:mdEdx:#1>>hFraction1Mult_Tgl_mdEdx(60,0.3,1.1, 20,0,2,15,0,1,15,0,1);";
-  hisString+="nFraction2:multTPCClusterN:atgl:mdEdx:#1>>hFraction2Mult_Tgl_mdEdx(60,0.3,1.1, 20,0,2,15,0,1,15,0,1);";
-  hisString+="nFraction3:multTPCClusterN:atgl:mdEdx:#1>>hFraction3Mult_Tgl_mdEdx(60,0.3,1.1, 20,0,2,15,0,1,15,0,1);";
-  //
-  hisString+="normChi2TPC:multTPCClusterN:atgl:mdEdx:#1>>hnormChi2TPCMult_Tgl_mdEdx(60,0.2,4, 20,0,2,15,0,1,15,0,1);";
-  hisString+="normChi2ITS:multTPCClusterN:atgl:mdEdx:#1>>hnormChi2ITSMult_Tgl_mdEdx(60,0.2,4, 20,0,2,15,0,1,15,0,1);";
-
-
-  //
-  TObjArray *hisArray = AliTreePlayer::MakeHistograms(tree, hisString, TString("(pileUpOK||nPileUpPrim/primMult<0.3)&&isSelected"), 0, nPoints, 20000, 15);
-  for (Int_t i = 0; i < hisArray->GetEntries(); i++) gROOT->Add(hisArray->At(i));
-  TTreeSRedirector *pcstream = new TTreeSRedirector("hisdEx.root", "recreate");
-  pcstream->GetFile()->cd();
-  hisArray->Write("hisArray", TObjArray::kSingleKey);
-  delete pcstream;
-  ::Info("MakeHistograms","End");
-  timer.Print();
-}
-
-void MakeHistogramsTracks(Int_t nPoints){
-  //
-  //
-  // parameters:
-  //    fraction of associated  cluster  - nFractionI
-  //    TPC chi2
-  //    ITS chi2
-  //    TPC-ITS matching  (0,1)
-  //    dEdx/dEdxExp       - for pions
-  //    TPC DCA rphi, z    -
-  // binning variables:
-  //     multiplicity       - number of clusters or number of tracks
-  //     q/pt               -
-  //     inclination angle  - tgl
-  //     1/dEdx             - 1/ combined TPC dEdx
-  //     local phi
-  //     or identified particles = pions uisng ITS
-
-  timer.Start();
-  ::Info("MakeHistogramsTracks","Begin");
-
-  TString hisString="";
-  hisString+="nFraction0:multTPCClusterN:atgl:mdEdx:#1>>hFraction0Mult_Tgl_mdEdx(60,0.3,1.1, 10,0,2, 15,0,1,15,0,1);";
-  hisString+="nFraction1:multTPCClusterN:atgl:mdEdx:#1>>hFraction1Mult_Tgl_mdEdx(60,0.3,1.1, 10,0,2, 15,0,1,15,0,1);";
-  hisString+="nFraction2:multTPCClusterN:atgl:mdEdx:#1>>hFraction2Mult_Tgl_mdEdx(60,0.3,1.1, 10,0,2, 15,0,1,15,0,1);";
-  hisString+="nFraction3:multTPCClusterN:atgl:mdEdx:#1>>hFraction3Mult_Tgl_mdEdx(60,0.3,1.1, 10,0,2, 15,0,1,15,0,1);";
-  hisString+="normChi2TPC:multTPCClusterN:atgl:mdEdx:#1>>hnormChi2TPCMult_Tgl_mdEdx(60,0.2,4, 10,0,2, 15,0,1,15,0,1);";
-  hisString+="normChi2ITS:multTPCClusterN:atgl:mdEdx:#1>>hnormChi2ITSMult_Tgl_mdEdx(60,0.2,4, 10,0,2, 15,0,1,15,0,1);";
-  //
-  hisString+="nFraction0:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hFraction0Mult_Tgl_qPt(60,0.3,1.1, 10,0,2, 15,0,1,20,-5,5);";
-  hisString+="nFraction1:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hFraction1Mult_Tgl_qPt(60,0.3,1.1, 10,0,2, 15,0,1,20,-5,5);";
-  hisString+="nFraction2:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hFraction2Mult_Tgl_qPt(60,0.3,1.1, 10,0,2, 15,0,1,20,-5,5);";
-  hisString+="nFraction3:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hFraction3Mult_Tgl_qPt(60,0.3,1.1, 10,0,2, 15,0,1,20,-5,5);";
-  hisString+="normChi2TPC:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hnormChi2TPCMult_Tgl_qPt(60,0.2,4, 10,0,2, 15,0,1,20,-5,5);";
-  hisString+="normChi2ITS:multTPCClusterN:atgl:qPt:#itsMIPCutP>>hnormChi2ITSMult_Tgl_qPt(60,0.2,4, 10,0,2, 15,0,1,20,-5,5);";
-  // resolution
-  hisString+="deltaP0:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisDeltaP0_dSec(50,-2,2, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="pullP0:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisPullP0_dSec(50,-2,2, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="deltaP2:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisDeltaP2_dSec(50,-2,2, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="pullP2:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisPullP2_dSec(50,-2,2, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="normChi2TPC:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisnormChi2TPC_dSec(50,0.2,4, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="normChi2ITS:multTPCClusterN:dSector:atgl:qPt:#IsPrim4>>hisnormChi2ITS_dSec(50,0.2,4, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  // dEdxMIP
-  hisString+="logdEdx:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisdEdxMIP_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  //
-  hisString+="logQMaxMIP0:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQMaxMIP0_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="logQMaxMIP1:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQMaxMIP1_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="logQMaxMIP2:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQMaxMIP2_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="logQTotMIP0:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQTotMIP0_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="logQTotMIP1:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQTotMIP1_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="logQTotMIP2:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisQTotMIP2_dSec(25,-0.6,0.6, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  // Ncl
-  hisString+="nFraction0:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisFraction0_dSec(25,0.1,1.1, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="nFraction1:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisFraction1_dSec(25,0.1,1.1, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="nFraction2:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisFraction2_dSec(25,0.1,1.1, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="nFraction3:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisFraction3_dSec(25,0.1,1.1, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-
-  hisString+="nCross0:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisnCross0_dSec(35,0.1,70, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="nCross1:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisnCross1_dSec(35,0.1,70, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="nCross2:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisnCross2_dSec(35,0.1,70, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  hisString+="ncrROCA:multTPCClusterN:dSector:atgl:qPt:#pionCut>>hisncrROCA_dSec(50,0.1,160.1, 10,0,2, 40,0,1, 10,0,1, 30, -3,3 );";
-  //
-  TObjArray *hisArray = AliTreePlayer::MakeHistograms(tree, hisString, TString("isSelected"), 0, nPoints, 20000, 15);
-  for (Int_t i = 0; i < hisArray->GetEntries(); i++) gROOT->Add(hisArray->At(i));
-  TTreeSRedirector *pcstream = new TTreeSRedirector("hisTracks.root", "recreate");
-  pcstream->GetFile()->cd();
-  hisArray->Write("hisArray", TObjArray::kSingleKey);
-  delete pcstream;
-  ::Info("MakeHistogramsTracks","End");
-  timer.Print();
-}
-
-
-void makeMaps(){
-  TFile *f = TFile::Open("hisdEdx.root");
-  TObjArray* hisArray=(TObjArray*)f->Get("hisArray");
-  TTreeSRedirector *pcstream = new TTreeSRedirector("mapdEdx.root", "recreate");
-  projectionInfo(0,0)=0;  projectionInfo(0,1)=0;  projectionInfo(0,2)=0;
-  projectionInfo(1,0)=1;  projectionInfo(1,1)=2;  projectionInfo(1,2)=0;
-  projectionInfo(2,0)=2;  projectionInfo(2,1)=1;  projectionInfo(2,2)=0;
-  projectionInfo(3,0)=3;  projectionInfo(3,1)=2;  projectionInfo(3,2)=0;
-  projectionInfo(4,0)=4;  projectionInfo(4,1)=1;  projectionInfo(4,2)=0;
-  for (Int_t iHis=0; iHis<hisArray->GetEntries(); iHis++) {
-    THn *hisInput = (THn *) hisArray->At(iHis);
-    ::Info("MakeResidualDistortionMaps", "%s\t%d\t%d\t%d", hisInput->GetName(), hisInput->GetNdimensions(), hisInput->GetNbins(), Int_t(hisInput->GetEntries()));
-    TStatToolkit::MakeDistortionMapFast(hisInput,pcstream,projectionInfo,0,0.02);
-  }
-  delete pcstream;
-}
-
-
-
-void makeMapsTracks(){
-  TFile *f = TFile::Open("hisTracks.root");
-  TObjArray* hisArray=(TObjArray*)f->Get("hisArray");
-  TTreeSRedirector *pcstream = new TTreeSRedirector("mapTracks.root", "recreate");
-  projectionInfo(0,0)=0;  projectionInfo(0,1)=0;  projectionInfo(0,2)=0;
-  projectionInfo(1,0)=1;  projectionInfo(1,1)=1;  projectionInfo(1,2)=0;
-  projectionInfo(2,0)=2;  projectionInfo(2,1)=1;  projectionInfo(2,2)=0;
-  projectionInfo(3,0)=3;  projectionInfo(3,1)=1;  projectionInfo(3,2)=0;
-  projectionInfo(4,0)=4;  projectionInfo(4,1)=1;  projectionInfo(4,2)=0;
-  for (Int_t iHis=0; iHis<hisArray->GetEntries(); iHis++) {
-    THn *hisInput = (THn *) hisArray->At(iHis);
-    ::Info("MakeResidualDistortionMaps", "%s\t%d\t%d\t%d", hisInput->GetName(), hisInput->GetNdimensions(), hisInput->GetNbins(), Int_t(hisInput->GetEntries()));
-    TStatToolkit::MakeDistortionMapFast(hisInput,pcstream,projectionInfo,0,0.02);
-    if (hisInput->GetNdimensions()<5) continue;
-    //
-    Int_t proj2[4]={0,1,3,4};
-    THn *hisProj2 = hisInput->Projection(4,proj2);
-    hisProj2->SetName(Form("%s2",hisInput->GetName()));
-    TStatToolkit::MakeDistortionMapFast(hisProj2,pcstream,projectionInfo,0,0.02);
-    Int_t proj1[4]={0,2,3,4};
-    THn *hisProj1 = hisInput->Projection(4,proj1);
-    hisProj1->SetName(Form("%s1",hisInput->GetName()));
-    TStatToolkit::MakeDistortionMapFast(hisProj1,pcstream,projectionInfo,0,0.02);
-   //
-    Int_t proj12[4]={0,3,4};
-    THn *hisProj12 = hisInput->Projection(3,proj12);
-    hisProj1->SetName(Form("%s1",hisInput->GetName()));
-    TStatToolkit::MakeDistortionMapFast(hisProj12,pcstream,projectionInfo,0,0.02);
-    delete hisProj2;
-    delete hisProj1;
-    delete hisProj12;
-
-
-  }
-  delete pcstream;
-}
-
-
-
-
-
-
-void initMaps(){
-  AliDrawStyle::SetDefaults();
-  AliDrawStyle::ApplyStyle("figTemplate");
-  gStyle->SetOptTitle(1);
-  treeMap=AliTreePlayer::LoadTrees("echo mapdEdx.root", "(h.*)", "xxx", ".*", "", "");
-  treeMap->SetMarkerStyle(21); treeMap->SetMarkerSize(0.6);
-  treeMap->SetAlias("dEdxMapOK", "abs((hdEdxAShifttMNTglDist.meanG-hdEdxCShifttMNTglDist.meanG)-(hdEdxAShifttMNTglDist.binMedian-hdEdxCShifttMNTglDist.binMedian))<0.02&&entries>25&&hdEdxAShifttMNTglDist.rmsG>0&&hdEdxCShifttMNTglDist.rmsG>0");
-}
-
-void loadMaps(){
-  AliDrawStyle::SetDefaults();
-  AliDrawStyle::ApplyStyle("figTemplate");
-  gStyle->SetOptTitle(1);
-  treeMapAll=AliTreePlayer::LoadTrees("cat mapdEdx.list", "(h.*)", "_Tgl_mdEdx", ".*", "", "");
-  treeMapTracks=AliTreePlayer::LoadTrees("cat mapdEdx.list", "(h.*_Tgl_mdEdx.*)", "xxx", ".*", "", "");
-  treeMapAll->SetMarkerStyle(21); treeMapAll->SetMarkerSize(0.6);
-}
-
-
-void makeFits(){
-  if (!treeMap) initMaps();
-  TString range0="(18,0,1800,10,0,1)";
-  TString kernel0="400:0.15";
-  TString range="(30,-150,150,40,0,8000,15,0,3500,15,0,1)";
-  TString kernel="20:400:400:0.15";
-  //treeMap->SetAlias("mapOK","entries>25&&abs(hdEdxAShifttMNTglDist.meanG-hdEdxAShifttMNTglDist.binMedian)<0.05");
-  treeMap->SetAlias("primMult","primMultCenter+(rndm-0.5)*400");
-  treeMap->SetAlias("atgl","atglCenter+(rndm-0.5)*0.1");
-  treeMap->SetAlias("shiftM","shiftMCenter+(rndm-0.5)*10");
-  treeMap->SetAlias("nPileUpPrim","nPileUpPrimCenter+(rndm-0.5)*100");
-  //
-  treeMap->SetAlias("FitAOK","hdEdxAShifttMNTglDist.meanG!=0&&abs(hdEdxAShifttMNTglDist.binMedian-hdEdxAShifttMNTglDist.meanG)<0.05");
-  treeMap->SetAlias("FitCOK","hdEdxCShifttMNTglDist.meanG!=0&&abs(hdEdxCShifttMNTglDist.binMedian-hdEdxCShifttMNTglDist.meanG)<0.05");
-  treeMap->SetAlias("dEdxFitOK","FitAOK&&FitCOK");
-  treeMap->SetAlias("statOK","min(hdEdxCShifttMNTglDist.entries,hdEdxAShifttMNTglDist.entries)>10");
-  treeMap->SetAlias("hdEdxACShifttMNTglDist.binMedian","(hdEdxAShifttMNTglDist.binMedian+hdEdxAShifttMNTglDist.binMedian)*0.5");
-  treeMap->SetAlias("hdEdxACShifttMNTglDist.meanG","(hdEdxAShifttMNTglDist.meanG+hdEdxAShifttMNTglDist.meanG)*0.5");
-
-  ::Info("makeFits","fitASide0");
-  AliNDLocalRegression *fitASide0 = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxAShifttMNTglDist.meanGFit0",range0, "hdEdxAShifttMNTglDist.meanG:0.1",  "primMult:atgl","FitAOK&&primMultCenter<1000", kernel0,0.01);
-  ::Info("makeFits","fitASideA");
-  AliNDLocalRegression *fitASideA = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxAShifttMNTglDist.meanGFitA",range, "hdEdxAShifttMNTglDist.meanG:0.1",  "shiftM:nPileUpPrim:primMult:atgl","FitAOK", kernel,0.05);
-  ::Info("makeFits","fitCSide0");
-   AliNDLocalRegression *fitCSide0 = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxCShifttMNTglDist.meanGFit0",range0, "hdEdxCShifttMNTglDist.meanG:0.1",  "primMult:atgl","FitCOK&&primMultCenter<1000", kernel0,0.01);
-   ::Info("makeFits","fitCSideA");
-  AliNDLocalRegression *fitCSideA = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxCShifttMNTglDist.meanGFitA",range, "hdEdxCShifttMNTglDist.meanG:0.1",  "shiftM:nPileUpPrim:primMult:atgl","FitCOK", kernel,0.05);
-  //
-   ::Info("makeFits","fitASideMed");
-  AliNDLocalRegression *fitASideMed = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxAShifttMNTglDist.binMedianFitA",range, "hdEdxAShifttMNTglDist.binMedian:0.1",  "shiftM:nPileUpPrim:primMult:atgl","hdEdxAShifttMNTglDist.entries>10", kernel,0.05);
-  ::Info("makeFits","fitCSideMed");
-  AliNDLocalRegression *fitCSideMed = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxCShifttMNTglDist.binMedianFitA",range, "hdEdxCShifttMNTglDist.binMedian:0.1",  "shiftM:nPileUpPrim:primMult:atgl","hdEdxAShifttMNTglDist.entries>10", kernel,0.05);
-  //
-  ::Info("makeFits","fitACSideMed");
-  AliNDLocalRegression *fitACSideMed = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxACShifttMNTglDist.binMedianFitA",range, "hdEdxACShifttMNTglDist.binMedian:0.1",  "shiftM:nPileUpPrim:primMult:atgl","statOK", kernel,0.05);
-   ::Info("makeFits","fitACSideMeanG");
-  AliNDLocalRegression *fitACSideA = AliNDLocalRegression::MakeRegression(treeMap,"hdEdxACShifttMNTglDist.meanGFitA",range, "hdEdxACShifttMNTglDist.meanG:0.1",  "shiftM:nPileUpPrim:primMult:atgl","dEdxFitOK", kernel,0.05);
-
-  TObjArray * cors = AliNDLocalRegression::GetVisualCorrections();
-  for (Int_t i=0; i<cors->GetEntriesFast(); i++){
-    AliNDLocalRegression * regression=(AliNDLocalRegression *)cors->At(i);
-    if (regression){
-      regression->CleanCovariance();
-    }
-  }
-
-  TFile *fout=TFile::Open("dEdxFit.root","recreate");
-
-  fitASide0->Write("hdEdxAShifttMNTglDist_meanGFit0");
-  fitASideA->Write("hdEdxAShifttMNTglDist_meanGFitA");
-  fitCSide0->Write("hdEdxCShifttMNTglDist_meanGFit0");
-  fitCSideA->Write("hdEdxCShifttMNTglDist_meanGFitA");
-  fitACSideA->Write("hdEdxACShifttMNTglDist_meanGFitA");
-  //
-  fitASideMed->Write("hdEdxAShifttMNTglDist_binMedianFitA");
-  fitCSideMed->Write("hdEdxCShifttMNTglDist_binMedianFitA");
-  fitACSideMed->Write("hdEdxACShifttMNTglDist_binMedianFitA");
-  fout->Close();
-  //
-  fout=TFile::Open("dEdxFitLight.root","recreate");
-  fitACSideMed->Write("hdEdxACShifttMNTglDist_binMedianFitA");
-  delete fout;
-}
-
-void compressRegression(){
-  TFile fin("dEdxFitLight.root");
-  TFile fout("dEdxFitLight1.root","recreate");
-  AliNDLocalRegression*reg = (AliNDLocalRegression*)fin.Get("hdEdxACShifttMNTglDist_binMedianFitA");
-  reg->CleanCovariance();
-  reg->Write("hdEdxACShifttMNTglDist_binMedianFitA");
-  fout.Close();
-  //
-  {
-    TFile fin("dEdxFit.root");
-    TFile fout("dEdxFitLightA.root","recreate");
-    TList * keys = fin.GetListOfKeys();
-    for (Int_t i=0;i<keys->GetEntries(); i++) {
-      TString keyName=keys->At(i)->GetName();
-      AliNDLocalRegression *reg = (AliNDLocalRegression *) fin.Get(keyName.Data());
-      reg->CleanCovariance();
-      reg->Write(keyName.Data());
-    }
-    fout.Close();
-  }
-
-}
-
-
-
-void LoadFits(){
-   if (!treeMap) initMaps();
-  TFile *fin=TFile::Open("dEdxFit.root");
-  TList * flist= fin->GetListOfKeys();
-  TString fitName;
-  AliNDLocalRegression *regression=0;
-  for (Int_t i=0; i<flist->GetEntries(); i++){
-    ::Info("LoadFits","%s", flist->At(i)->GetName());
-    fitName=flist->At(i)->GetName();
-    regression  = (AliNDLocalRegression *)fin->Get(fitName.Data());
-    Int_t hashIndex=regression->GetVisualCorrectionIndex(regression->GetName());
-    AliNDLocalRegression::AddVisualCorrection(regression, hashIndex);
-    treeMap->SetAlias(regression->GetName(),TString::Format("AliNDLocalRegression::GetCorrND(%d,shiftMCenter,nPileUpPrimCenter,primMultCenter,atglCenter+0)",hashIndex).Data());
-    //
-    if (tree){
-      //tree->SetAlias(regression->GetName(),TString::Format("AliNDLocalRegression::GetCorrND(%d,shiftMCenter,nPileUpPrimCenter,primMultCenter,atglCenter+0)",hashIndex).ReplaceAll("Center","").Data());
-      tree->SetAlias(regression->GetName(),TString::Format("%s",treeMap->GetAlias(regression->GetName())).ReplaceAll("Center","").Data());
-    }
-
-  }
-
-}
-
-
-
-void drawQAK0(){
-  treeV0Flat->Draw("track0.fTPCsignal/dEdx0ExpK0:track1.fTPCsignal/dEdx1ExpK0>>his(100,30,80,100,30,80)","type==8&&primMult<500&&nPileUpPrim>1000","colz");
-  //treeV0Flat->Draw("((track0.fTPCsignal-0*fitA0)/dEdx0ExpK0):((track1.fTPCsignal-0*fitA1)/dEdx1ExpK0)>>his(100,30,80,100,30,80)","type==8&&primMult<250&&nPileUpPrim<1000","colz")
-}
-
-
-
-void drawMapStat(){
-  gSystem->mkdir("fig");
-  treeMap->Draw("hdEdxAShifttMNTglDist.entries:nPileUpPrimCenter:shiftMCenter>>his(30,-180,180,15,0,8000)","","profgoff");
-  gPad->SetLogz();
-  treeMap->GetHistogram()->GetXaxis()->SetTitle("pile- up z (cm)");
-  treeMap->GetHistogram()->GetYaxis()->SetTitle("N_{trNorm}");
-  treeMap->GetHistogram()->Draw("colz");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.entries_nPileUpPrimCenter_shiftMCenter.png");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.entries_nPileUpPrimCenter_shiftMCenter.pdf");
-}
-
-void drawCorrection(){
-  treeMap->Draw("hdEdxAShifttMNTglDist.meanG:hdEdxCShifttMNTglDist.meanG>>his(100,-0.2,0.2,100,-0.2,0.2)","dEdxMapOK","colz");
-  gPad->SetLogz(); gPad->SetLogy(0); gPad->SetGridx(0); gPad->SetGridy(0);
-  treeMap->GetHistogram()->GetXaxis()->SetTitle("A side Map  dEdx_{corr}(unit)");
-  treeMap->GetHistogram()->GetYaxis()->SetTitle("C side Map  dEdx_{corr}(unit)");
-  treeMap->GetHistogram()->Draw("colz");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanG_hdEdxCShifttMNTglDist.meanG.pdf");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanG_hdEdxCShifttMNTglDist.meanG.png");
-  //
-  treeMap->Draw("hdEdxAShifttMNTglDist.meanGFitA:hdEdxCShifttMNTglDist.meanGFitA>>his(100,-0.2,0.2,100,-0.2,0.2)","dEdxMapOK","colz");
-  treeMap->GetHistogram()->GetXaxis()->SetTitle("A side Map  dEdx_{corrfit}(unit)");
-  treeMap->GetHistogram()->GetYaxis()->SetTitle("C side Map  dEdx_{corrfit}(unit)");
-  gPad->SetLogz(); gPad->SetLogy(0); gPad->SetGridx(0); gPad->SetGridy(0);
-  treeMap->GetHistogram()->Draw("colz");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanGFit_hdEdxCShifttMNTglDist.meanGFit.pdf");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanGFit_hdEdxCShifttMNTglDist.meanGFit.png");
-  //
-  // fit checks
-  //
-  treeMap->Draw("hdEdxAShifttMNTglDist.meanGFitA:hdEdxCShifttMNTglDist.meanGFitA+(hdEdxAShifttMNTglDist.binMedianFitA-hdEdxCShifttMNTglDist.binMedianFitA)>>his(100,-0.2,0.2,100,-0.2,0.2)","dEdxMapOK","colz");
-  treeMap->GetHistogram()->GetXaxis()->SetTitle("A side Map  dEdx_{corrfit}-(dEdx_{ACmedianDiff})(unit)");
-  treeMap->GetHistogram()->GetYaxis()->SetTitle("C side Map  dEdx_{corrfit}(unit)");
-  gPad->SetLogz(); gPad->SetLogy(0); gPad->SetGridx(0); gPad->SetGridy(0);
-  treeMap->GetHistogram()->Draw("colz");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanGFit_hdEdxCShifttMNTglDist.meanGFitbinMedian.pdf");
-  gPad->SaveAs("fig/hdEdxAShifttMNTglDist.meanGFit_hdEdxCShifttMNTglDist.meanGFitbinMedian.png");
-  //treeMap->Draw("hdEdxAShifttMNTglDist.meanGFitA-hdEdxCShifttMNTglDist.meanGFitA-(hdEdxAShifttMNTglDist.binMedianFitA-hdEdxCShifttMNTglDist.binMedianFitA)","dEdxMapOK","colz");
-}
-
-
-void QAK0(){
-  gSystem->mkdir("figK0");
-  LoadFits();
-  initFlatV0();
-  treeV0Flat->SetAlias("dEdxCorr0","((track0.fTPCsignal-1*fitA0*50.)/dEdx0ExpK0)");
-  treeV0Flat->SetAlias("dEdxCorr1","((track1.fTPCsignal-1*fitA1*50.)/dEdx1ExpK0)");
-  treeV0Flat->SetAlias("dEdxOrig0","((track0.fTPCsignal)/dEdx0ExpK0)");
-  treeV0Flat->SetAlias("dEdxOrig1","((track1.fTPCsignal)/dEdx1ExpK0)");
-  treeV0Flat->SetAlias("cleanK0","K0Like>0.8&&min(track0P,track1P)>0.3&&v0.fPointAngle>0.998");
-
-  {treeV0Flat->Draw("dEdxCorr0:dEdxCorr1>>hisCorrK04000(100,30,80,100,30,80)","cleanK0&&!cut4000","colz");
-  gPad->SaveAs("figK0/hisCorrK04000.pdf");
-  gPad->SaveAs("figK0/hisCorrK04000.C");}
-
-  {treeV0Flat->Draw("dEdxOrig0:dEdxOrig1>>hisOrigK04000(100,30,80,100,30,80)","cleanK0&&!cut4000","colz");
-  gPad->SaveAs("figK0/hisOrigK04000.pdf");
-  gPad->SaveAs("figK0/hisOrigK04000.C");}
 }

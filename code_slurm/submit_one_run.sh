@@ -73,8 +73,9 @@ fi
     cp $current_dir/../code_FlatTreeCreation/fitdEdxCorrectionFiltered.C $output_dir/
     cd $output_dir
 
-    sbatch --partition=debug --array=0-${nChunks}   $current_dir/SubmitJobs2Nyx.sh $run  ${output_dir} ${input_file_path}  3 9   
+    sbatch --partition=main --array=0-${nChunks} $current_dir/SubmitJobs2Nyx.sh $run  ${output_dir} ${input_file_path} 3 9 
 
+#--exclude=lxbk[0600-0723] 
 echo "XXXX" $output_dir  
 echo "YYY" $input_file_path
 

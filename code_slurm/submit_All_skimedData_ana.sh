@@ -5,25 +5,29 @@
 #date            :Fri May  8 12:18:32 EDT 2020
 #version         :1.0
 
-pass=pass2_CENT_woSDD   # pass1, pass2..
+#pass=pass2_CENT_woSDD   # pass1, pass2..
+pass=pass3
 
-MAX_runs=1 #99 for LHC18r, 136 for 18q, user can give a small number for testing 
+MAX_runs=150 #99 for LHC18r, 136 for 18q, user can give a small number for testing 
 MAX_chunks=1 # how many chunks per job, split the large runs with into several jobs,  
 
-run_pariod=LHC16t #LHC18q, LHC18r.
-run_list=pPb/LHC16t_pass2_wSSD.txt #LHC18r_pass3_full.txt
+#run_pariod=LHC16q #LHC18q, LHC18r.
+#run_list=pPb/LHC16q_pass2_wSSD.txt #LHC18r_pass3_full.txt
+
+run_pariod=LHC18q
+run_list=LHC18q_pass3_full.txt
 
 #user can modify the below path according to the input 
 input_base_path=/lustre/alice/DETdata/triggeredESD/alice 
 data=data # data or sim
-year=2016 # 2018. 2015
+year=2018 # 2018. 2015
 
-#prod_id=AODFilterTrees01/AOD  #for PbPb 2018
-prod_id=AOD/
+prod_id=AODFilterTrees01/AOD  #for PbPb 2018
+#prod_id=AOD/
 file_name=FilterEvents_Trees.root
 
 
-output_base_dir=/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/output
+output_base_dir=/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/output_test
 current_dir=/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_slurm
 input_path=$input_base_path/$data/$year/$run_pariod
 

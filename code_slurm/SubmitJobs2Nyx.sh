@@ -1,9 +1,9 @@
 #!/bin/bash
 # Task name
-#SBATCH -J TPCPID
+#SBATCH -J TPCPID_test2
 # Run time limit
 #SBATCH --mem-per-cpu=16000
-#SBATCH --time=00:10:00
+#SBATCH --time=08:00:00
 # Working directory on shared storage
 # Standard and error output in different files
 #SBATCH -o %j_%N.out.log
@@ -55,23 +55,14 @@ fi
 
 echo ${SLURM_ARRAY_TASK_ID} >> temp
 
-
-spline_path='/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/splines/TPCPIDResponseOADB_2020_06_22_18r_pass3_It4_woPileup.root'
-eta_crrection_path='/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/splines/TPCetaMaps_2020_06_22_18r_pass3_It4_woPileup.root'
-
-pidIndex=1 
-passNumber=3
-recoPass="pass3"                                                     
-aodbPath="/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/OADB"   
-pileUpCorrection="dEdxFitLight.root"
-
-today=$(date +%Y%m%d)
 echo "Today's date: "$today
 
 
 echo $run
 echo $nChunks
-singularity exec /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500//alidockSingularity.sif aliroot -l -b <<EOF
+singularity shell /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500/alidockSingularityNoInit.sif <<EOF
+alienv -w /alicesw/sw enter AliPhysics/latest
+aliroot
 TStopwatch timer;
 timer.Start();
 .L /lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_FlatTreeCreation/fitdEdxCorrectionFiltered_C.so
@@ -81,6 +72,7 @@ cacheCleanV0();
 cacheCleanTrack();
 cacheEventFlat();
 timer.Print();
+.qqqqq
 EOF
 
 
