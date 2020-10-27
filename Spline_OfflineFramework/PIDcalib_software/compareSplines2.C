@@ -48,8 +48,8 @@ Int_t compareSplines2(TString pathNameSplines1, TString pathNameSplines2,
     TCanvas* c = new TCanvas("c", "",  100,10,1380,800);
     c->SetLogx(kTRUE);
     
-    TH2D* hDummy = new TH2D("hDummy", Form("; p_{TPC} (GeV/c); %s / %s", displayNameSplines1.Data(), displayNameSplines2.Data()),
-                            1000, 0.15, 60, 1000, 0.9, 1.1);
+    TH2D* hDummy = new TH2D("hDummy", Form("; p_{TPC} (GeV/c); %s / %s", "Saturated Lund", "ALEPH"),
+                            1000, 0.15, 60, 1000, 0.95, 1.05);
     hDummy->GetYaxis()->SetLabelSize(0.03);
     hDummy->GetYaxis()->SetTitleSize(0.05);
     hDummy->GetYaxis()->SetTitleOffset(1.);
@@ -127,8 +127,8 @@ Int_t compareSplines2(TString pathNameSplines1, TString pathNameSplines2,
   TCanvas* c = new TCanvas("c", "",  100,10,1380,800);
   c->SetLogx(kTRUE);
   
-  TH2D* hDummy = new TH2D("hDummy", Form("; p_{TPC} (GeV/c); %s / %s", displayNameSplines1.Data(), displayNameSplines2.Data()),
-                          1000, 0.15, 60, 1000, 0.9, 1.1);
+  TH2D* hDummy = new TH2D("hDummy", Form("; p_{TPC} (GeV/c); %s / %s", "Saturated Lund (w D.)", "ALEPH (w D.)"),
+                          1000, 0.15, 60, 1000, 0.95, 1.05);
   hDummy->GetYaxis()->SetLabelSize(0.03);
   hDummy->GetYaxis()->SetTitleSize(0.05);
   hDummy->GetYaxis()->SetTitleOffset(1.);
@@ -152,6 +152,7 @@ Int_t compareSplines2(TString pathNameSplines1, TString pathNameSplines2,
   TSpline3* splKaon2 = 0x0;
   TSpline3* splElectron2 = 0x0;
   TSpline3* splProton2 = 0x0;
+  TSpline3* splDefault2 = 0x0;
   
   
   TObjArray* arr = 0x0;
@@ -230,6 +231,22 @@ Int_t compareSplines2(TString pathNameSplines1, TString pathNameSplines2,
   gElectron->SetLineColor(kMagenta);
   gElectron->SetMarkerColor(kMagenta);
   gElectron->Draw("same");
+
+  TSpline3* splDefault = loadSplines(f1, arr, Form("TSPLINE3_%s_ALL_%s_%s_MEAN", dataType1.Data(), period.Data(), beamType1.Data()), 
+                                      useOADBforFirstSplines);
+  splDefault2 = loadSplines(f2, arr2, Form("TSPLINE3_%s_ALL_%s_%s_MEAN", dataType2.Data(), period2.Data(), beamType2.Data()),
+                             useOADBforSecondSplines);
+  TGraph* gDefault = new TGraph(nPoints);
+  gDefault->SetTitle("default (proton mass)");
+  gDefault->SetFillStyle(0);
+  gDefault->SetFillColor(kWhite);
+  for (Int_t i = 0; i < nPoints; i++) {
+    gDefault->SetPoint(i, (0. + i * stepSize) * 0.938, 
+                        (splDefault->Eval((0. + i * stepSize)) / splDefault2->Eval((0. + i * stepSize))));
+  }
+  gDefault->SetLineColor(kBlack);
+  gDefault->SetMarkerColor(kBlack);
+  gDefault->Draw("same");
   
   TLegend* leg = c->BuildLegend();
   leg->GetListOfPrimitives()->RemoveAt(0);

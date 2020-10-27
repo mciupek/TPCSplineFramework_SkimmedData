@@ -83,6 +83,9 @@ Int_t compareSplines(TString pathNameSplines1, TString pathNameSplines2,
   TSpline3* splElectron = loadSplines(f1, arr, Form("TSPLINE3_%s_ELECTRON_%s_%s_MEAN", dataType1.Data(), period.Data(), beamType1.Data()),
                                       useOADBforFirstSplines);
 
+  TSpline3* spldefault = loadSplines(f1, arr, Form("TSPLINE3_%s_ALL_%s_%s_MEAN", dataType1.Data(), period.Data(), beamType1.Data()),
+                                      useOADBforFirstSplines);
+
 
   if (onlyPlotFirstSplines) {
     TCanvas* c = new TCanvas("c", "Splines 1",  100,10,1380,800);
@@ -165,6 +168,18 @@ Int_t compareSplines(TString pathNameSplines1, TString pathNameSplines2,
     gElectron->SetMarkerColor(kMagenta);
     gElectron->Draw("same");
 
+    TGraph* gDefault = new TGraph(nBins + 1);
+    gDefault->SetTitle("default");
+    gDefault->SetFillStyle(0);
+    gDefault->SetFillColor(kWhite);
+    gDefault->SetLineWidth(2);
+    for (Int_t i = 0; i < nBins + 1; i++) {
+      gDefault->SetPoint(i, pBins[i], 50.*(spldefault->Eval(pBins[i] / AliPID::ParticleMass(AliPID::kProton))));
+    }
+    gDefault->SetLineColor(kBlack);
+    gDefault->SetMarkerColor(kBlack);
+    gDefault->Draw("same");
+
     TLegend* leg = new TLegend(0.65, 0.65, 0.85, 0.88);
     leg->SetNColumns(2);
     leg->SetTextSize(0.06);
@@ -173,6 +188,7 @@ Int_t compareSplines(TString pathNameSplines1, TString pathNameSplines2,
     leg->AddEntry(gKaon, Form(" %s", gKaon->GetTitle()), "l");
     leg->AddEntry(gProton, Form(" %s", gProton->GetTitle()), "l");
     leg->AddEntry(gElectron, Form(" %s", gElectron->GetTitle()), "l");
+    leg->AddEntry(gDefault, Form(" %s", gDefault->GetTitle()), "l");
     leg->SetFillColor(kWhite);
     leg->SetBorderSize(0.);
     c->SetGridx(kFALSE);
@@ -204,7 +220,7 @@ Int_t compareSplines(TString pathNameSplines1, TString pathNameSplines2,
   const Int_t nPointsEl = nPoints * 10.;
 
   TH2D* hDummy = new TH2D("hDummy", Form("; #it{p} (GeV/#it{c}); %s / %s", displayNameSplines1.Data(), displayNameSplines2.Data()),
-                          1000, 0.15, 60, 1000, 0.9, 1.1);
+                          1000, 0.15, 60, 1000, 0.95, 1.05);
   hDummy->GetYaxis()->SetLabelSize(0.03);
   hDummy->GetYaxis()->SetTitleSize(0.05);
   hDummy->GetYaxis()->SetTitleOffset(1.);

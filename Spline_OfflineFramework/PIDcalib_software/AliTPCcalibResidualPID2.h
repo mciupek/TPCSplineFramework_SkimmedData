@@ -145,7 +145,7 @@ class AliTPCcalibResidualPID2 : public AliAnalysisTaskSE {
   static void SetUpInputGraph(TGraphErrors* graphAll, Bool_t isMC, Bool_t useV0s);
   static TCanvas* CreateBBCanvas(TObjArray* inputGraphs, Bool_t isMC, TF1* func);
   static TCanvas* CreateResidualCanvas(TGraphErrors* graphAll, TF1* func);
-  
+  static TCanvas* CreateResidualCanvas_Color(TGraphErrors * graphkaon,TGraphErrors *grapkpion, TGraphErrors *graphproton, TGraphErrors *graphDeuteron, TF1* func);
   static  TF1*        FitBB(TObjArray* inputGraphs, Bool_t isMC, Bool_t isPPb, const Bool_t useV0s,
                             const Double_t * initialParameters = 0x0, FitType = kSaturatedLund);
   static Int_t MergeGraphErrors(TGraphErrors* mergedGraph, TCollection* li);
