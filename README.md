@@ -21,21 +21,34 @@ These steps need to be repeated until the splines converge to a reasonable resul
 
 How to create the splines (Step-by-Step).
 
-1) In a first step the flattrees are created to generate the input file for the creation of the ouput files for the offline framework.
-The necesarry code is found in the folder: code_CreateFlatTree.
+1) Download the github directory to your user directory at lustre GSI.
+2) Switch to the directory code_CreateFlatTree.
+3) load aliroot using the following command (at the moment Marians singularity container is loaded, but in principle other aliroot5 installations are fine)
+3.1) source  /lustre/alice/users/miranov/NOTES/alice-tpc-notes2/JIRA/ATO-500/setDefaultEnv.sh
+3.2) alicehub5Sif /lustre/alice/users/miranov/NOTESData/alice-tpc-notes
+4) In the code fitdEdxCorrectionFiltered.C got to the function  SetUpNewSpline(Int_t run) and make sure the default splines are loaded without eta and multiplicity correction. For the comment out: 
+fPIDResponse->SetCustomTPCpidResponseOADBFile("...");
+fPIDResponse->SetCustomTPCetaMaps("...");
+And deactivate multiplicty and eta correction, since for the first Iteration this should be turn off.
+  fPIDResponse->SetUseTPCMultiplicityCorrection(false);
+  fPIDResponse->SetUseTPCEtaCorrection(false);
+  fPIDResponse->SetUseTPCPileupCorrection(false);
+ 
+5) Compile your code and try it on one chunk of the filtered tree. Make sure some splines are loaded (usually splines from the last pass) and that the flattrees are created.
+6) If everything worked fine we can run the code on the full statistics of filtered trees. For that we use that code in the folder code_slurm.
+7) The submit script is defined in submit_All_skimedData_ana.sh, make sure the paths are pointing to the correct directory (data set, pass, output directory etc.). If everything is defined you can submit your jobs via ./submit_All_skimedData_ana.sh
+8) When the ouput is generated we can process the outputs further and generate the THnSparse and TTree needed for the splines creation. For that we change to the folder code_SplineInput.
+9) First of all we need to create a list of the input files. For that we switch to the folder "lists" and perform the following command:
+ls -1v $output_dir/data/$year/$dataset/*/$pass/chunks_*/V0tree.root > V0_$dataset.list
+ls -1v $output_dir/data/$year/$dataset/*/$pass/chunks_*/Cleantrack.root > track_$dataset.list
+where $output_dir, $year, $dataset, $pass are depending on your folder and dataset processed.
 
-The file fitdEdxCorrectionFiltered.C is the code needed to create the Flattrees. There serveral functions are defined which need to be called in the following order.
-
-  gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
-  .L fitdEdxCorrectionFiltered.C+
-  SetUpNewSpline(295585);      // here the splines from the last iteration are loaded, in addition here we can turn on/off eta, multiplicty and pileup correction.
-  InitTree(1,1,295585);        // here the filterered trees we are looping on are initialised, in addition event informations are coupled with track informations.
-  cacheCleanV0();              // here the flat tree containing the V0 tracks is created, here we also define the track information which should be stored 
-  cacheCleanTrack();           // here the flat tree containing the primary tracks is created, here we also define the track information which should be stored
-  cacheEventFlat();            // here the event tree is created, this can be used for cross checks.
-  
-  As input a list of the location of the filtered trees is needed (filtered.list). At the moment only one chunk at the moment can be processed.
-  
-  The fitdEdxCorrectionFiltered.so_C is needed in the next step to run over the full statistics. Therefore everytime changes are done here the code needs to be compiled. Otherwise the changes are not taken into account when running on the GSI farm over full statistics.
-  
-  2) 
+10) The code used to loop over the flattrees to create the THnSparse and TTree is AliSkimmedDataAnalysisMaker.cpp. The looping is performed by calling the macro runV0.C ( aliroot -l runV0.C). There make sure that you enable the creation of the THnSparse and TTree, the following lines should not be commented out.
+         ana->read(filename);           //Loop to create THnsparse for V0
+		 ana->Filltreeformap_V0(filename);         //Loop to create Tree for V0
+         ana->Read_tracktree(filename_track);               //Loop to create THnsparse for Track
+	     ana->Filltreeformap_track(filename_track);            //Loop to create TTree for V0
+         
+ 11) This process takes for Pb-Pb LHC18r approximate 15-20 minutes when run locally, in principle this could be also submitted to the batch farm but it is not necassary. Grab some coffee ;)
+ 
+             
