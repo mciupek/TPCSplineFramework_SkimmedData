@@ -62,7 +62,7 @@ Also make sure that the multiplicty correction and eta correction is turned on:
   fPIDResponse->SetUseTPCEtaCorrection(true);
   fPIDResponse->SetUseTPCPileupCorrection(true);
   
- 15) Repeat step 5) to 14) until your splines converge and you are happy with the results. This should be the case after 4-7 Iterations depending on the data.
+ 15) Repeat step 5) to 14) until your splines converge and you are happy with the results. This should be the case after 4-7 Iterations depending on the data. In step 10) we do not need to create the TTree again. Therefore we can commute out ana->Filltreeformap_track(filename_track) and ana->Filltreeformap_V0(filename).
  16) Now we can run the QA to check the performance of the splines on different particles and as function of different varialbes (centrality, eta etc.).
  
  
