@@ -51,4 +51,19 @@ where $output_dir, $year, $dataset, $pass are depending on your folder and datas
          
  11) This process takes for Pb-Pb LHC18r approximate 15-20 minutes when run locally, in principle this could be also submitted to the batch farm but it is not necassary. Grab some coffee ;)
  
+ 12) After this step the input files for the Bethe-Bloch fit and eta/multiplicity. Go to the folder Spline_OfflineFramework and create a folder for your data set (LHC16q for example) and copy the 0PERIOD_PASS_splineCreationv3.sh file to this folder. There make sure the paths are defined correctly and that the informations are matching the one of your dataset.
+ 
+ 13) To run the script load your aliroot5 environment and call bash 0PERIOD_PASS_splineCreationv3.sh. Now the whole spline creation is running step by step. First the Bethe-Bloch function is fitted for all particles as function of momentum, than the eta/multiplicty corrections are extracted. At the end the corrections are applied on the Tree for a first check how the TPCnsigma looks like. At the end you will have created two files for the parametrization. First the TPCPIDResponse...root file which contains the momentum dependent parametrization and the multiplicty correction as string and the TPCEtamaps...root containing the eta dependent correction.
+ 14) These splines are know used for the second iteration to imporove the performance of the splines. Go back to step 4 and add the path of your created parametrization to:
+fPIDResponse->SetCustomTPCpidResponseOADBFile("...");
+fPIDResponse->SetCustomTPCetaMaps("...");
+Also make sure that the multiplicty correction and eta correction is turned on:
+  fPIDResponse->SetUseTPCMultiplicityCorrection(true);
+  fPIDResponse->SetUseTPCEtaCorrection(true);
+  fPIDResponse->SetUseTPCPileupCorrection(true);
+  
+ 15) Repeat step 5) to 14) until your splines converge and you are happy with the results. This should be the case after 4-7 Iterations depending on the data.
+ 16) Now we can run the QA to check the performance of the splines on different particles and as function of different varialbes (centrality, eta etc.).
+ 
+ 
              
