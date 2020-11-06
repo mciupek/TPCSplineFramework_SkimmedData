@@ -68,7 +68,6 @@ timer.Start();
 .L /lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_FlatTreeCreation/fitdEdxCorrectionFiltered_C.so
 SetUpNewSpline($run);
 InitTree(1,1,$run);
-enablePileUpCorrection()
 cacheCleanV0();
 cacheCleanTrack();
 cacheEventFlat();
