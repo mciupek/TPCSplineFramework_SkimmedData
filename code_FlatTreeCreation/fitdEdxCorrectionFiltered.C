@@ -7,8 +7,8 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
   AliDrawStyle::SetDefaults();
   AliDrawStyle::ApplyStyle("figTemplate");
   gStyle->SetOptTitle(1);
-  SetUpNewSpline(295585);
-  InitTree(1,1,295585);
+  SetUpNewSpline(296062);
+  InitTree(1,1,296062);
 //  LoadFits();
   cacheCleanV0();
   cacheCleanTrack();
@@ -70,7 +70,9 @@ TTree * treeMapAll=0;
 TTree * treeV0Flat=0;
 TStopwatch timer;
 AliESDtools tools;
-Int_t pidHash=0;
+AliESDv0 *v0 =0;
+
+Int_t pidHash=1;
 
 TMatrixD projectionInfo(5,5);
 void InitTree(Int_t nChunks, Int_t buildIndex=1, Int_t run=296690);
@@ -81,7 +83,7 @@ void fitdEdxCorrectionFiltered(){
 
 
 void enablePileUpCorrection(){
-  AliPIDtools::GetTPCPID(pidHash).SetPileupCorrectionObject(AliPIDtools::GetTPCPID(pidHash).GetPileupCorrectionFromFile("/lustre/nyx/alice/users/mciupek/TPCSpline/FilteredTree/dEdxFitLight_LHC18rpass3.root"));
+  AliPIDtools::GetTPCPID(pidHash).SetPileupCorrectionObject(AliPIDtools::GetTPCPID(pidHash).GetPileupCorrectionFromFile("/lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/PWGPP-538/new/alice/data/2018/LHC18q/pass3/AODFilterTrees01/dEdxFitLight.root"));
 }
 
 void SetUpNewSpline(Int_t run){
@@ -97,17 +99,32 @@ void SetUpNewSpline(Int_t run){
 
   AliESDEvent ev;
   AliPIDResponse *fPIDResponse = new AliPIDResponse;
+  AliPIDResponse *fPIDResponse2 = new AliPIDResponse;
 
   fPIDResponse->SetUseTPCMultiplicityCorrection(false);
   fPIDResponse->SetUseTPCEtaCorrection(false);
-  fPIDResponse->SetUseTPCPileupCorrection(false);
+  fPIDResponse->SetUseTPCPileupCorrection(true);
   
-  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCPIDResponseOADB_2020_10_13_18q_pass3_It7.root");
-  fPIDResponse->SetCustomTPCetaMaps("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCetaMaps_2020_10_13_18q_pass3_It7.root");
+  fPIDResponse->SetCustomTPCpidResponseOADBFile("");
+  fPIDResponse->SetCustomTPCetaMaps("");
   fPIDResponse->SetOADBPath("$ALICE_PHYSICS/OADB/");
   fPIDResponse->InitialiseEvent(&ev,passNumber, recoPass, run);
+
   AliPIDtools::pidTPC[1]=&(fPIDResponse->GetTPCResponse());
   AliPIDtools::pidAll[1]=fPIDResponse;
+
+  fPIDResponse2->SetUseTPCMultiplicityCorrection(false);
+  fPIDResponse2->SetUseTPCEtaCorrection(false);
+  fPIDResponse2->SetUseTPCPileupCorrection(true);
+  
+  fPIDResponse2->SetCustomTPCpidResponseOADBFile("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCPIDResponseOADB_2020_10_12_18q_pass3_It1.root");
+  fPIDResponse2->SetCustomTPCetaMaps("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCetaMaps_2020_10_12_18q_pass3_It1.root");
+  fPIDResponse2->SetOADBPath("$ALICE_PHYSICS/OADB/");
+  fPIDResponse2->InitialiseEvent(&ev,passNumber, recoPass, run);
+
+  AliPIDtools::pidTPC[2]=&(fPIDResponse2->GetTPCResponse());
+  AliPIDtools::pidAll[2]=fPIDResponse2;
+  
 
 
 }
@@ -156,6 +173,11 @@ void makeAliasesTracks(TTree *tree){
     tree->SetAlias(Form("logTotMax%d",i) , Form("log(fTPCdEdxInfo.GetSignalTot(%d)/fTPCdEdxInfo.GetSignalMax(%d))",i,i));
     tree->SetAlias(Form("logQMaxMIP%d",i) , Form("log(0.02+0.98*fTPCdEdxInfo.GetSignalTot(%d)/dEdxExpPion)",i));
     tree->SetAlias(Form("logQTotMIP%d",i) , Form("log(0.02+0.98*fTPCdEdxInfo.GetSignalMax(%d)/dEdxExpPion)",i));
+    
+    tree->SetAlias(Form("logSignalTot%d",i) , Form("fTPCdEdxInfo.GetSignalTot(0+%d)",i));
+    tree->SetAlias(Form("logSignalMax%d",i) , Form("fTPCdEdxInfo.GetSignalMax(0+%d)",i));
+    tree->SetAlias(Form("signalNcl%d",i) , Form("(fTPCdEdxInfo.GetNumberOfClusters(0+%d))",i));
+    tree->SetAlias(Form("signalNcr%d",i) , Form("(fTPCdEdxInfo.GetNumberOfCrossedRows(0+%d))",i));
   }
 
   tree->SetAlias("ratioTotMax0", "fTPCdEdxInfo.GetSignalTot(0)/fTPCdEdxInfo.GetSignalMax(0)");
@@ -368,6 +390,20 @@ void makeAliasesV0(){
   treeV0->SetAlias("nCrossRows1","(track1.GetTPCClusterInfo(3,1)+0)");
 
 
+    for (Int_t i=0; i<4; i++){
+    treeV0->SetAlias(Form("logSignalTot_track0_%d",i) , Form("track0.fTPCdEdxInfo.GetSignalTot(0+%d)",i));
+    treeV0->SetAlias(Form("logSignalMax_track0_%d",i) , Form("track0.fTPCdEdxInfo.GetSignalMax(0+%d)",i));
+    treeV0->SetAlias(Form("signalNcl_track0_%d",i) , Form("(track0.fTPCdEdxInfo.GetNumberOfClusters(0+%d))",i));
+    treeV0->SetAlias(Form("signalNcr_track0_%d",i) , Form("(track0.fTPCdEdxInfo.GetNumberOfCrossedRows(0+%d))",i));
+
+    treeV0->SetAlias(Form("logSignalTot_track1_%d",i) , Form("track1.fTPCdEdxInfo.GetSignalTot(0+%d)",i));
+    treeV0->SetAlias(Form("logSignalMax_track1_%d",i) , Form("track1.fTPCdEdxInfo.GetSignalMax(0+%d)",i));
+    treeV0->SetAlias(Form("signalNcl_track1_%d",i) , Form("(track1.fTPCdEdxInfo.GetNumberOfClusters(0+%d))",i));
+    treeV0->SetAlias(Form("signalNcr_track1_%d",i) , Form("(track1.fTPCdEdxInfo.GetNumberOfCrossedRows(0+%d))",i));
+
+  }
+
+
 }
 
 void makeAliasesEvent(){
@@ -468,7 +504,7 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
 
   TString cacheVariables=""
     //"run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
-    //"gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
+    "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
     "v0.fPointAngle:kf.fChi2:K0Like:ELike:LLike:ALLike:cleanK0:cleanGamma:cleanLambda:cleanALambda:track0status:track1status:track0_hasTOF:track1_hasTOF:"
     "track0.fTPCsignal:track1.fTPCsignal:track0.fTPCsignalN:track1.fTPCsignalN:type:track0.fITSsignal:track1.fITSsignal:"
     "track0P:track0Pt:track0Eta:track0Phi:track0Px:track0Py:track0Pz:track0Tgl:dca0_r:dca0_z:nCrossRows0:tpc_cls0:"
@@ -486,7 +522,18 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
 //    "track1tpcNsigma_corrected_el:track1tpcNsigma_corrected_pi:track1tpcNsigma_corrected_ka:track1tpcNsigma_corrected_pro:"
 //    "track0ExpectedTPCSignalV0_corrected_el:track0ExpectedTPCSignalV0_corrected_pi:track0ExpectedTPCSignalV0_corrected_ka:track0ExpectedTPCSignalV0_corrected_pro:"
 //    "track1ExpectedTPCSignalV0_corrected_el:track1ExpectedTPCSignalV0_corrected_pi:track1ExpectedTPCSignalV0_corrected_ka:track1ExpectedTPCSignalV0_corrected_pro:"
-    "centV0:centITS0:centITS1:tpcClusterMult:multSSD:multSDD:tpcTrackBeforeClean:triggerMask:isMinBias:isPileUp";                    /// to add QA variables
+    "centV0:centITS0:centITS1:tpcClusterMult:multSSD:multSDD:tpcTrackBeforeClean:triggerMask:isMinBias:isPileUp:"
+    "logSignalTot_track0_0:logSignalTot_track0_1:logSignalTot_track0_2:logSignalTot_track0_3:"
+    "logSignalMax_track0_0:logSignalMax_track0_1:logSignalMax_track0_2:logSignalMax_track0_3:"
+    "signalNcl_track0_0:signalNcl_track0_1:signalNcl_track0_2:signalNcl_track0_3:"
+    "signalNcr_track0_0:signalNcr_track0_1:signalNcr_track0_2:signalNcr_track0_3:"
+    "logSignalTot_track1_0:logSignalTot_track1_1:logSignalTot_track1_2:logSignalTot_track1_3:"
+    "logSignalMax_track1_0:logSignalMax_track1_1:logSignalMax_track1_2:logSignalMax_track1_3:"
+    "signalNcl_track1_0:signalNcl_track1_1:signalNcl_track1_2:signalNcl_track1_3:"
+    "signalNcr_track1_0:signalNcr_track1_1:signalNcr_track1_2:signalNcr_track1_3";                    /// to add QA variables
+
+
+
 
   AliPIDtools::SetFilteredTreeV0(treeClean);
   AliTreePlayer::MakeCacheTreeChunk(treeClean,cacheVariables.Data(),"V0tree.root","V0Flat","isMinBias==1",entries,firstEntry,chunkSize);
@@ -537,7 +584,7 @@ void cacheCleanTrack(){
    timer.Start();
   tree->SetAlias("trackP","esdTrack.fIp.P()");
   tree->SetAlias("trackPt","esdTrack.fIp.Pt()");
-  tree->SetAlias("tgl","esdTrack.fP[3]");
+  tree->SetAlias("tgl","esdTrack.fIp.fP[3]");
   tree->SetAlias("fTPCsignal","esdTrack.fTPCsignal");
   tree->SetAlias("trackEta","esdTrack.Eta()");
   tree->SetAlias("trackstatus","esdTrack.GetStatus()");
@@ -575,7 +622,11 @@ void cacheCleanTrack(){
                           "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
                           "multSSD:multSDD:multSPD:multV0:multT0:spdvz:itsTracklets:tpcMult:tpcTrackBeforeClean:" /// raw multiplicities
                           "centV0:centITS0:centITS1:"
-			                    "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias:isPileUp";                    /// to add QA variables
+			                    "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias:isPileUp:"
+                          "logSignalTot0:logSignalTot1:logSignalTot2:logSignalTot3:"
+                          "logSignalMax0:logSignalMax1:logSignalMax2:logSignalMax3:"
+                          "signalNcl0:signalNcl1:signalNcl2:signalNcl3:"
+                          "signalNcr0:signalNcr1:signalNcr2:signalNcr3";                                        /// to add QA variables
 
   AliTreePlayer::MakeCacheTree(tree,cacheVariables.Data(),"CleanTrack.root","CleanTrackFlat","isMinBias==1");
  ::Info("cacheTrackHighMass","END");
@@ -614,8 +665,6 @@ void InitTree(Int_t nChunks, Int_t buildIndex, Int_t run) {
   tree = AliXRDPROOFtoolkit::MakeChain("filtered.list", "highPt", 0, nChunks);
   treeV0 = AliXRDPROOFtoolkit::MakeChain("filtered.list", "V0s", 0, nChunks);
   treeEvent = AliXRDPROOFtoolkit::MakeChain("filtered.list", "events", 0, nChunks);
-  AliPIDtools::SetFilteredTree(tree);
-  AliPIDtools::SetFilteredTreeV0(treeV0);
   if (treeEvent->GetEntries()<=0) treeEvent=NULL;
   tree->SetCacheSize(500000000);
   treeV0->SetCacheSize(500000000);
@@ -644,5 +693,8 @@ void InitTree(Int_t nChunks, Int_t buildIndex, Int_t run) {
   tree->SetAlias("pidHash",Form("(%d+0)",pidHash));
   treeV0->SetAlias("pidHash",Form("(%d+0)",pidHash));
   //tree->SetAlias("primMult","SPDVertex.fNContributors");
+  AliPIDtools::SetFilteredTree(tree);
+  AliPIDtools::SetFilteredTreeV0(treeV0);
+
   //
 }
