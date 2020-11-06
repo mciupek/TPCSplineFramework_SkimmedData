@@ -2154,7 +2154,7 @@ for (Int_t i = 1; i <= 2; i++){
   deuteronTpcGraph->SetName("deuteronTpcGraph");
   for(Int_t ip = 0; ip < deuteronTpcGraph->GetN(); ip ++) {
     Bool_t removePoint = deuteronTpcGraph->GetY()[ip] < 10 || deuteronTpcGraph->GetEY()[ip]/deuteronTpcGraph->GetY()[ip] > 0.02
-                        || deuteronTpcGraph->GetX()[ip] > 1.5 || deuteronTpcGraph->GetX()[ip] < 0.25; //TODO BEN was > 0.399 - default
+                        || deuteronTpcGraph->GetX()[ip] > 1.3 || deuteronTpcGraph->GetX()[ip] < 0.25; //TODO BEN was > 0.399 - default
         //                || deuteronTpcGraph->GetX()[ip] < 0.12 || deuteronTpcGraph->GetX()[ip] > 0.44; //edited by JY #1, to avoid empty points
     if (removePoint) {
       deuteronTpcGraph->RemovePoint(ip);
@@ -3053,7 +3053,7 @@ for (Int_t i = 1; i <= 2; i++){
     //listColl->Add(pionV0plusTOFGraphForBBfit);
     listColl->Add(electronV0plusTOFGraphForBBfit);//nschmidt2016 for PbPb was uncommented for pp
     //listColl->Add(protonV0plusTOFGraphForBBfit);
-    //listColl->Add(deuteronTpcGraph);          //BB fit deuteron
+    listColl->Add(deuteronTpcGraph);          //BB fit deuteron
     //listColl->Add(deuteronTofGraph);
   }
   MergeGraphErrors(graphAll, listColl);
@@ -4019,8 +4019,8 @@ TObjArray * AliTPCcalibResidualPID2::GetResponseFunctions(TF1* parametrisation, 
                            Form("TSPLINE3_%s_KAON_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype));
   splinePion->SetNameTitle(Form("TSPLINE3_%s_PION_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype),
                            Form("TSPLINE3_%s_PION_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype));
-  splineDeuteron->SetNameTitle(Form("TSPLINE3_%s_Deuteron_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype),
-                           Form("TSPLINE3_%s_Deuteron_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype));                          
+  splineDeuteron->SetNameTitle(Form("TSPLINE3_%s_DEUTERON_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype),
+                           Form("TSPLINE3_%s_DEUTERON_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype));                          
   splineDefault->SetNameTitle(Form("TSPLINE3_%s_ALL_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype),
                               Form("TSPLINE3_%s_ALL_%s_%s_%s_%sMEAN",type,period,pass,system,dedxtype));
   //

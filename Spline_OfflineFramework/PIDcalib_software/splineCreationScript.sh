@@ -137,7 +137,7 @@ elif [ "$1" = "3" ];then
   else
     sourcepath=$folder/$spline2
   fi
-   aliroot  "$software/correctShapeEtaTree.C+(kTRUE, \"$folder\", \"$file2\", \"NoNormalisation\", kTRUE, \"$sourcepath\", \"$spline\", \"$basefolder\", $hasMult, kTRUE, \"$etaTreeNameMultSelected\", \"fTree\", \"$multParameters\")" -b -q -l
+   aliroot  "$software/correctShapeEtaTree.C+(kTRUE, \"$folder\", \"$file2\", \"NoNormalisation\", kTRUE, \"$sourcepath\", \"$spline\", \"$basefolder\", $hasMult, kFALSE, \"$etaTreeNameMultSelected\", \"fTree\", \"$multParameters\")" -b -q -l
 echo "****** Step 3 finished ******"
 ########## STEP 4 ##########
 elif [ "$1" = "4" ];then
@@ -229,7 +229,7 @@ echo "****** Step OADB: Produce OADB File ****** "
     firstRun=0
     lastRun=0
   fi
-  aliroot "$trainmacros/MakeTPCPIDResponseOADB.C+(\"$folder/$OADBFileName\", \"""\", \"$folder/$spline2\", $firstRun, $lastRun, $passNumber, \"$multParameters\", \"$MultSeparationString\", \"$pileupDefinition\")" -b -q -l
+  aliroot "$trainmacros/MakeTPCPIDResponseOADB.C+(\"$folder/$OADBFileName\", \"""\", \"$folder/$spline2\", $firstRun, $lastRun, $passNumber, \"$multParameters\", \"$MultSeparationString\", \"$pileupDefinition\", $multiplictyEstimator)" -b -q -l
   echo "****** Step OADB finished ******"
 ###########     Make eta Maps - need to update addMapToFile.C before!! ############
 elif [ "$1" = "etaMaps" ];then

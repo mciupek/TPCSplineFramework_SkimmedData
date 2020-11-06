@@ -19,38 +19,46 @@
 #include "TSystem.h"
 #include "./GetMultiplicityFactors.C"
 
-#include <iostream>
 
 AliOADBContainer fContainer("TPCSplines");
 Int_t fFailures=0;
 
 Bool_t AddOADBObjectFromSplineFile(const TString fileName,
                                    const Int_t firstRun, const Int_t lastRun,
-                                   const Int_t pass,
+                                   const TString pass,
                                    const TString dEdxType="",
                                    const TString multCorr="",
-                                   const TString resolution="", const TString multBinString = "",
-                                   const TString pileupDefinition="");
-Bool_t CheckMultiplicityCorrection(const TString& corrections);
+                                   const TString resolution="",
+                                   const TString pileupDefinition="",
+                                   const AliTPCPIDResponse::EMultiplicityEstimator multEstimator = AliTPCPIDResponse::kNumberOfESDTracks);
 
+Bool_t CheckMultiplicityCorrection(const TString& corrections);
 TObjArray* SetupSplineArrayFromFile(const TString fileName);
 
 //______________________________________________________________________________
-void MakeTPCPIDResponseOADB(TString outfile="$ALICE_PHYSICS/OADB/COMMON/PID/data/TPCPIDResponseOADB.root", TString period = "", TString fileName = "", Int_t firstRun = 0, Int_t lastRun = 0, Int_t pass = 0, TString multParameters = "", TString multBinString = "", TString pileupDefinition="") {
+void MakeTPCPIDResponseOADB(TString outfile="$ALICE_PHYSICS/OADB/COMMON/PID/data/TPCPIDResponseOADB.root", TString period = "", TString fileName = "", Int_t firstRun = 0, Int_t lastRun = 0, Int_t pass = 0, TString multParameters = "", TString multBinString = "", TString pileupDefinition="", AliTPCPIDResponse::EMultiplicityEstimator multEstimator=AliTPCPIDResponse::kNTPCTrackBeforeClean )
+{
 
   TString dEdxType = "";
   TString multCorr = "";
+
+  printf("Splines file Name: %s\n",fileName.Data());
+  printf("First Run Number: %i\nLast Run Number: %i\nPass: %i\n",firstRun, lastRun,pass);
+  printf("Multiplicity Correction String: %s\n",multCorr.Data());
 
   if (multParameters.Contains(".root"))
     multCorr = GetMultiplicityFactors(multParameters);
   else
     multCorr = multParameters;
 
-  printf("Splines file Name: %s\n",fileName.Data());
-  printf("First Run Number: %i\nLast Run Number: %i\nPass: %i\n",firstRun, lastRun,pass);
-  printf("Multiplicity Correction String: %s\n",multCorr.Data());
+AddOADBObjectFromSplineFile(fileName,firstRun,lastRun,pass,dEdxType,multCorr, "", pileupDefinition, multEstimator); // 18q-r 18r range: 296631, 999999, "1"); // LHC18r
 
-  AddOADBObjectFromSplineFile(fileName,firstRun,lastRun,pass,dEdxType,multCorr, "", multBinString, pileupDefinition);
+
+/*
+  // ---| local test |----------------------------------------------------------
+  AddOADBObjectFromSplineFile("/data/Work/data/PID/testTransferFunction/10e/splines_10d.pass4.root", 194480, 195874, "1", "",
+                              "-5.906e-06,-5.064e-04,-3.521e-02,2.469e-02,0 ; -5.32e-06, 1.177e-05, -0.5 ; 0.,0.,0.,0.");
+*/
 
   if (fFailures) {
     Error("MakeSplineOADB","Process ended with %d fFailures. Not writing the container", fFailures);
@@ -117,11 +125,12 @@ TObjArray* SetupSplineArrayFromFile(const TString fileName)
 //______________________________________________________________________________
 Bool_t AddOADBObjectFromSplineFile(const TString fileName,
                                    const Int_t firstRun, const Int_t lastRun,
-                                   const Int_t pass,
+                                   const TString pass,
                                    const TString dEdxType,
                                    const TString multCorr,
-                                   const TString resolution, const TString multBinString,
-                                   const TString pileupDefinition)
+                                   const TString resolution,
+                                   const TString pileupDefinition,
+                                   const AliTPCPIDResponse::EMultiplicityEstimator multEstimator)
 {
 
   // ---| Master array for TPC PID response |-----------------------------------
@@ -129,35 +138,29 @@ Bool_t AddOADBObjectFromSplineFile(const TString fileName,
   arrTPCPIDResponse->SetName("TPCPIDResponse");
   arrTPCPIDResponse->SetOwner();
 
-  TObjArray* multBins = multBinString.Tokenize(":");
+  // ---| Period and pass name deduced from the file name |---------------------
+  //TPRegexp regPeriod(".*/((LHC|)[0-9]{2}[a-z].pass[0-9_a-zA-Z]*)/.*");
+  //TObjArray* arrPeriod = regPeriod.MatchS(fileName);
+  //cout << arrPeriod->GetEntriesFast() << endl;
+  //if (arrPeriod && arrPeriod->GetEntriesFast() == 3) {
+  //  TString periodName = arrPeriod->At(1)->GetName();
+  //  if (! periodName.BeginsWith("LHC") ) periodName.Prepend("LHC");
+  //  printf("period name: %s\n", periodName.Data());
+  //  arrTPCPIDResponse->SetName(periodName);
+  //}
+  //else {
+  //  printf("Cannot extract period and pass from file name %s\n", fileName.Data());
+  //}
 
+  //delete arrPeriod;
+  
   // ---| Splines |-------------------------------------------------------------
-  if (multBins->GetEntries() > 1) {
-    TH1I* hMultBins = new TH1I("hMultBins", "MultBinEdges", multBins->GetEntries(), 0, multBins->GetEntries());
-    arrTPCPIDResponse->Add(hMultBins);
-    TString fileNameBase = TString(fileName).ReplaceAll(".root","");
-    for (Int_t i=0;i<multBins->GetEntries();i=i+2) {
-      TObjString* multLow = (TObjString*)multBins->At(i);
-      TObjString* multHigh = (TObjString*)multBins->At(i+1);
-      hMultBins->SetBinContent(i+1,multLow->GetString().Atoi());
-      hMultBins->SetBinContent(i+2,multHigh->GetString().Atoi());
-      TObjArray* arrSplines = SetupSplineArrayFromFile(fileNameBase + "_" + multLow->GetString() + "_" + multHigh->GetString() + ".root");
-      if (!arrSplines) {
-        ++fFailures;
-        return kFALSE;
-      }
-      arrSplines->SetName(("TPCSplines_" + multLow->GetString() + "_" + multHigh->GetString()).Data());
-      arrTPCPIDResponse->Add(arrSplines);
-    }
+  TObjArray *arrSplines = SetupSplineArrayFromFile(fileName);
+  if (!arrSplines) {
+    ++fFailures;
+    return kFALSE;
   }
-  else {
-    TObjArray *arrSplines = SetupSplineArrayFromFile(fileName);
-    if (!arrSplines) {
-      ++fFailures;
-      return kFALSE;
-    }
-    arrTPCPIDResponse->Add(arrSplines);
-  }
+  arrTPCPIDResponse->Add(arrSplines);
 
   // ---| PID config |----------------------------------------------------------
   if (!dEdxType.IsNull()) {
@@ -197,8 +200,13 @@ Bool_t AddOADBObjectFromSplineFile(const TString fileName,
       arrTPCPIDResponse->Add(pileupCorrection);
     }
   }
+  fContainer.AppendObject(arrTPCPIDResponse, firstRun, lastRun, pass);
 
-  fContainer.AppendObject(arrTPCPIDResponse, firstRun, lastRun, TString::Format("%d", pass));
+  // ---| multiplicity estimator |---
+  if (multEstimator != AliTPCPIDResponse::kNumberOfESDTracks) {
+    TNamed *multEstimatorDef = new TNamed("MultiplicityEstimator", Form("%d", (Int_t)multEstimator));
+    arrTPCPIDResponse->Add(multEstimatorDef);
+  }
 
   return kTRUE;
 }
