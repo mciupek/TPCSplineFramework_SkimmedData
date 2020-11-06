@@ -66,8 +66,9 @@ aliroot
 TStopwatch timer;
 timer.Start();
 .L /lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_FlatTreeCreation/fitdEdxCorrectionFiltered_C.so
-InitTree(1,1,$run);
 SetUpNewSpline($run);
+InitTree(1,1,$run);
+enablePileUpCorrection()
 cacheCleanV0();
 cacheCleanTrack();
 cacheEventFlat();
