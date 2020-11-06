@@ -1,6 +1,7 @@
-void runV0(TString filelist="list/V0_LHC18q.list",TString filelist_track = "list/track_LHC18q.list", TString outfile="TPCresidualPID_LHC18q.root", TString outfile_Tree = "TPCPIDEtaTree_LHC18q.root") {
-
-  gSystem->Load("/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_SplineInput/AliSkimmedDataAnalysisMaker.so");
+void runV0(TString filelist="list/V0_LHC18q.list",
+           TString filelist_track = "list/track_LHC18q.list", 
+           Bool_t enablePileUpCut=kFALSE) {
+  gSystem->Load("/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_SplineInput_changed/AliSkimmedDataAnalysisMaker.so");
 
   //  R__LOAD_LIBRARY(HelloWorld.so);
   // V0FlatAna* V0ana = new V0FlatAna();
@@ -9,7 +10,7 @@ void runV0(TString filelist="list/V0_LHC18q.list",TString filelist_track = "list
 
   // V0ana->Init(tree_v0);
   // V0ana->Loop();
-  AliSkimmedDataAnalysisMaker *ana=new AliSkimmedDataAnalysisMaker(outfile,outfile_Tree);
+  AliSkimmedDataAnalysisMaker *ana=new AliSkimmedDataAnalysisMaker("TPCresidualPID.root","TPCPIDEtaTree.root");
   //  ana->read();
   //  ana->WriteHistogram();
 
@@ -24,8 +25,8 @@ void runV0(TString filelist="list/V0_LHC18q.list",TString filelist_track = "list
    {
       ++ifile;
       cout <<"sngl_file: "<<ifile<<" : "<<filename<<endl;
-         ana->read(filename);
-		     ana->Filltreeformap_V0(filename);
+         ana->read(filename,enablePileUpCut);
+		     ana->Filltreeformap_V0(filename,enablePileUpCut);
     //       ana->TreeV0_BBFitAnalysis(filename);
     }
   cout<< "this is for QA"<<endl;
@@ -41,8 +42,8 @@ void runV0(TString filelist="list/V0_LHC18q.list",TString filelist_track = "list
     {
       ++ifile_track;
       cout <<"sngl_file: "<<ifile_track<<" : "<<filename_track<<endl;
-         ana->Read_tracktree(filename_track);
-	       ana->Filltreeformap_track(filename_track);
+         ana->Read_tracktree(filename_track,enablePileUpCut);
+	       ana->Filltreeformap_track(filename_track,enablePileUpCut);
     }
 
 

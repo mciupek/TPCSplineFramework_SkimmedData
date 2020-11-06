@@ -24,25 +24,21 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   virtual ~AliSkimmedDataAnalysisMaker();
 
   void bookHistogram();
-  void read(TString filename);
-  void Read_tracktree(TString filename);
-  void Filltreeformap_track(TString filename_track);
-  void Filltreeformap_V0(TString filename_v0);  
+  void read(TString filename, Bool_t enablePileUpCut);
+  void Read_tracktree(TString filename,Bool_t enablePileUpCut);
+  void Filltreeformap_track(TString filename_track, Bool_t enablePileUpCut);
+  void Filltreeformap_V0(TString filename_v0, Bool_t enablePileUpCut);  
   void WriteHistogram();
   void execute();
   void BinLogAxis(THnSparseF *h, Int_t axisNumber);
   void SetAxisNamesFromTitle(const THnSparseF *h);
-  void TreeV0_BBFitAnalysis(TString filename_v0);
-  void TreePrimary_BBFitAnalysis(TString filename_track);
   
 
  private:
   TFile*  mOutputFile;
   TFile*  mOutputFile_eta;
-  TFile * mOutputFile_BBFitAnalysis;
 
  TTree* fTree;
- TTree* fTree2;
  TH2F*  mh2pTdEdxVspT;
 
  TH2F *mh2pTdEdxVspT_K0Like;
@@ -74,16 +70,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t fPIDtype;
   Double_t fMultiplicity;
 
-//tree varialbe BB fit check
 
-  Double_t p;
-  Double_t oneoverpt;
-  Double_t rawtpcsignal;
-  Double_t BG;
-  Double_t eta;
-  Double_t multiplicty;
-  Double_t centrality;
-  Double_t PDGcode;
 
 
 
