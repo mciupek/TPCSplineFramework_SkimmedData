@@ -23,7 +23,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   //const char*
   virtual ~AliSkimmedDataAnalysisMaker();
 
-  void bookHistogram();
+  void bookHistogram(Bool_t isPbPb);
   void read(TString filename, Bool_t enablePileUpCut);
   void Read_tracktree(TString filename,Bool_t enablePileUpCut);
   void Filltreeformap_track(TString filename_track, Bool_t enablePileUpCut);

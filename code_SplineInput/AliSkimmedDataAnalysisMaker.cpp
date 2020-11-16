@@ -34,7 +34,7 @@ AliSkimmedDataAnalysisMaker::~AliSkimmedDataAnalysisMaker(){
   //..
   //..
 }
-void AliSkimmedDataAnalysisMaker::bookHistogram()
+void AliSkimmedDataAnalysisMaker::bookHistogram(Bool_t isPbPb)
 {
 
   fTree = new TTree("fTree", "Tree for analysis of #eta dependence of TPC signal");
@@ -79,7 +79,7 @@ void AliSkimmedDataAnalysisMaker::bookHistogram()
   //SetAxisNamesFromTitle(fThnspTpc);
   // BinLogAxis(fThnspTpc, 8);
   
-  bool IsPbPb=true;
+  bool IsPbPb=isPbPb;
   const Int_t kNdim = 8;
   Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 40, 10,  IsPbPb ? 40 : 40,10};
   Double_t xminHistQA[kNdim] = {0.1,   20., -0.5, -0.5, -10., -5.,   0.,0};

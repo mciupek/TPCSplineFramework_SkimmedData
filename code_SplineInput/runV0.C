@@ -1,7 +1,8 @@
-void runV0(TString filelist="list/V0_LHC18q.list",
-           TString filelist_track = "list/track_LHC18q.list", 
-           Bool_t enablePileUpCut=kFALSE) {
-  gSystem->Load("/lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_SplineInput_changed/AliSkimmedDataAnalysisMaker.so");
+void runV0(TString filelist="list/V0_LHC16r.list",
+           TString filelist_track = "list/track_LHC16r.list", 
+           Bool_t enablePileUpCut=kFALSE,
+           Bool_t isPbPb = kFALSE) {
+  gSystem->Load("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_SplineInput/AliSkimmedDataAnalysisMaker.so");
 
   //  R__LOAD_LIBRARY(HelloWorld.so);
   // V0FlatAna* V0ana = new V0FlatAna();
@@ -16,7 +17,7 @@ void runV0(TString filelist="list/V0_LHC18q.list",
 
 
   // StEvtGen_Ana * EvtGen_QA=new StEvtGen_Ana(outfile);
-  ana->bookHistogram();
+  ana->bookHistogram(isPbPb);
   cout<< " booked the histogram"<<endl;
   char filename[1000];
   ifstream fstream(filelist.Data());
@@ -27,7 +28,6 @@ void runV0(TString filelist="list/V0_LHC18q.list",
       cout <<"sngl_file: "<<ifile<<" : "<<filename<<endl;
          ana->read(filename,enablePileUpCut);
 		     ana->Filltreeformap_V0(filename,enablePileUpCut);
-    //       ana->TreeV0_BBFitAnalysis(filename);
     }
   cout<< "this is for QA"<<endl;
   
