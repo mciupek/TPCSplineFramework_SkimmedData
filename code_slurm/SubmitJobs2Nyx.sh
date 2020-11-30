@@ -65,7 +65,7 @@ alienv -w /alicesw/sw enter AliPhysics/latest
 aliroot
 TStopwatch timer;
 timer.Start();
-.L /lustre/nyx/alice/users/mciupek/TPCSpline/SkimmedData_Framework/code_FlatTreeCreation/fitdEdxCorrectionFiltered_C.so
+.L /lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/fitdEdxCorrectionFiltered_C.so
 SetUpNewSpline($run);
 InitTree(1,1,$run);
 cacheCleanV0();

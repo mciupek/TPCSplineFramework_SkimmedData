@@ -81,7 +81,7 @@ void AliSkimmedDataAnalysisMaker::bookHistogram(Bool_t isPbPb)
   
   bool IsPbPb=isPbPb;
   const Int_t kNdim = 8;
-  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 40, 10,  IsPbPb ? 40 : 40,10};
+  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 100, 10,  IsPbPb ? 40 : 40,10};
   Double_t xminHistQA[kNdim] = {0.1,   20., -0.5, -0.5, -10., -5.,   0.,0};
   Double_t xmaxHistQA[kNdim] = {50., 2000.,  3.5,  7.5,  10.,  5., IsPbPb ? 25000. : 4000.,1};
   fHistPidQA = new THnSparseF(name.Data(), title.Data(), kNdim, binsHistQA, xminHistQA, xmaxHistQA);
@@ -184,21 +184,21 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
 	bool isTreeLambda=false;
 	bool isTreeALambda=false;
 
-	if(V0ana->K0Like>0.8&&(V0ana->cleanK0==1))
+	if(V0ana->K0Like>0.7&&(V0ana->cleanK0==1))
 	  {
 	    isTreeK0=true;   
 	  }
-	if(V0ana->ELike>0.9&&(V0ana->cleanGamma==1))
+	if(V0ana->ELike>0.8&&(V0ana->cleanGamma==1))
 	  {
 	    isTreeGamma=true;   
 	  }
 
-	if(V0ana->LLike>0.8&&(V0ana->cleanLambda==1))
+	if(V0ana->LLike>0.7&&(V0ana->cleanLambda==1))
 	  {
 	    isTreeLambda=true;   
 	  }
 
-	if(V0ana->ALLike>0.8&&(V0ana->cleanALambda==1))
+	if(V0ana->ALLike>0.7&&(V0ana->cleanALambda==1))
 	  {
 	    isTreeALambda=true;   
 	  }

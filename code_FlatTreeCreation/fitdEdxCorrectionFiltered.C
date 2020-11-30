@@ -7,8 +7,8 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
   AliDrawStyle::SetDefaults();
   AliDrawStyle::ApplyStyle("figTemplate");
   gStyle->SetOptTitle(1);
-  SetUpNewSpline(296062);
-  InitTree(1,1,296062);
+  SetUpNewSpline(296623);     //LHC16q: 266081
+  InitTree(1,1,296623);
 //  LoadFits();
   cacheCleanV0();
   cacheCleanTrack();
@@ -23,8 +23,8 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
   AliDrawStyle::SetDefaults();
   AliDrawStyle::ApplyStyle("figTemplate");
   gStyle->SetOptTitle(1);
-  SetUpNewSpline(295585);
-  InitTree(1,1,295585);
+  SetUpNewSpline(267163);
+  InitTree(1,1,267163);
 //  LoadFits();
   cacheCleanV0_SplineStudies();
   cacheCleanTrack_SplineStudies();
@@ -102,31 +102,16 @@ void SetUpNewSpline(Int_t run){
   AliPIDResponse *fPIDResponse2 = new AliPIDResponse;
 
   fPIDResponse->SetUseTPCMultiplicityCorrection(false);
-  fPIDResponse->SetUseTPCEtaCorrection(false);
+  fPIDResponse->SetUseTPCEtaCorrection(true);
   fPIDResponse->SetUseTPCPileupCorrection(true);
   
-  fPIDResponse->SetCustomTPCpidResponseOADBFile("");
-  fPIDResponse->SetCustomTPCetaMaps("");
+  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/nyx/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCPIDResponseOADB_2020_10_13_18q_pass3_It7.root");
+  fPIDResponse->SetCustomTPCetaMaps("/lustre/nyx/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCetaMaps_2020_10_13_18q_pass3_It7.root");
   fPIDResponse->SetOADBPath("$ALICE_PHYSICS/OADB/");
   fPIDResponse->InitialiseEvent(&ev,passNumber, recoPass, run);
 
   AliPIDtools::pidTPC[1]=&(fPIDResponse->GetTPCResponse());
   AliPIDtools::pidAll[1]=fPIDResponse;
-
-  fPIDResponse2->SetUseTPCMultiplicityCorrection(false);
-  fPIDResponse2->SetUseTPCEtaCorrection(false);
-  fPIDResponse2->SetUseTPCPileupCorrection(true);
-  
-  fPIDResponse2->SetCustomTPCpidResponseOADBFile("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCPIDResponseOADB_2020_10_12_18q_pass3_It1.root");
-  fPIDResponse2->SetCustomTPCetaMaps("/lustre/alice/users/mciupek/TPCSpline/SkimmedData_Framework/Splines/LHC18q/withpileup/TPCetaMaps_2020_10_12_18q_pass3_It1.root");
-  fPIDResponse2->SetOADBPath("$ALICE_PHYSICS/OADB/");
-  fPIDResponse2->InitialiseEvent(&ev,passNumber, recoPass, run);
-
-  AliPIDtools::pidTPC[2]=&(fPIDResponse2->GetTPCResponse());
-  AliPIDtools::pidAll[2]=fPIDResponse2;
-  
-
-
 }
 
 
@@ -266,6 +251,118 @@ void makeAliasesTracks(TTree *tree){
   tree->SetAlias("dca_r","esdTrack.fD");
   tree->SetAlias("dca_z","esdTrack.fZ");
   tree->SetAlias("nCrossRows","(esdTrack.GetTPCClusterInfo(3,1)+0)");
+
+
+  // Aliases for the QA spline!
+ 
+  // for the new splines // no correction 
+
+  tree->SetAlias("track_tpcNsigma_no_corrected_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,0)",1));
+  tree->SetAlias("track_tpcNsigma_no_corrected_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,0)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x0,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_no_corrected_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x0,0+0)",1));
+
+  // for the new splines // only eta
+
+  tree->SetAlias("track_tpcNsigma_corrected_eta_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,1)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,1)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x1,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x1,0+0)",1));
+
+    // for the new splines // only multiplicity
+
+  tree->SetAlias("track_tpcNsigma_corrected_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,2)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_multip_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,2)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x2,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_multip_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x2,0+0)",1));
+
+      // for the new splines // only pileup
+
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,4)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_pileup_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,4)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x4,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_pileup_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x4,0+0)",1));
+
+        // for the new splines // only eta + pileup
+
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,5)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_pileup_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,5)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x5,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_pileup_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x5,0+0)",1));
+
+          // for the new splines // only eta + multiplicty
+
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_deut",Form("AliPIDtools::NumberOfSigmas(%d,1,5,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_tri", Form("AliPIDtools::NumberOfSigmas(%d,1,6,0-1,6)",1));
+  tree->SetAlias("track_tpcNsigma_corrected_eta_multip_He3", Form("AliPIDtools::NumberOfSigmas(%d,1,7,0-1,6)",1));
+
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_el",Form("AliPIDtools::GetExpectedTPCSignal(%d,0,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_pi",Form("AliPIDtools::GetExpectedTPCSignal(%d,2,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_ka",Form("AliPIDtools::GetExpectedTPCSignal(%d,3,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_pro",Form("AliPIDtools::GetExpectedTPCSignal(%d,4,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_deut", Form("AliPIDtools::GetExpectedTPCSignal(%d,5,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_tri", Form("AliPIDtools::GetExpectedTPCSignal(%d,6,0x6,0+0)",1));
+  tree->SetAlias("track_ExpectedTPCSignal_corrected_eta_multip_He3", Form("AliPIDtools::GetExpectedTPCSignal(%d,7,0x6,0+0)",1));
+
 }
 
 
@@ -328,27 +425,6 @@ void makeAliasesV0(){
   treeV0->SetAlias("track1itsNsigmaKaon","itsNsigma1.fElements[3]");
   treeV0->SetAlias("track1itsNsigmaProton","itsNsigma1.fElements[4]");
 
-  //
-//  treeV0->SetAlias("track0tpcNsigma_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0)",pidHash));
-//  treeV0->SetAlias("track0tpcNsigma_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0)",pidHash));
-//  treeV0->SetAlias("track0tpcNsigma_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,0+0)",pidHash));
-//  treeV0->SetAlias("track0tpcNsigma_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0)",pidHash));
-
-//  treeV0->SetAlias("track1tpcNsigma_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0)",pidHash));
-//  treeV0->SetAlias("track1tpcNsigma_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0)",pidHash));
-//  treeV0->SetAlias("track1tpcNsigma_ka",Form("AliPIDtools::NumberOfSigmas(%d,1, 3,1+0)",pidHash));
-//  treeV0->SetAlias("track1tpcNsigma_pro",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0)",pidHash));
-  //
-//  treeV0->SetAlias("track0ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x1, 0,0+0)",pidHash));
-//  treeV0->SetAlias("track0ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x1, 0,0+0)",pidHash));
-//  treeV0->SetAlias("track0ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x1, 0,0+0)",pidHash));
-//  treeV0->SetAlias("track0ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x1, 0,0+0)",pidHash));
-
-//  treeV0->SetAlias("track1ExpectedTPCSignalV0_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0x1, 1,0+0)",pidHash));
-//  treeV0->SetAlias("track1ExpectedTPCSignalV0_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0x1, 1,0+0)",pidHash));
-// treeV0->SetAlias("track1ExpectedTPCSignalV0_ka",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,3,0x1, 1,0+0)",pidHash));
-//  treeV0->SetAlias("track1ExpectedTPCSignalV0_pro",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0x1, 1,0+0)",pidHash));
-
   // for the corercted new splines,
   treeV0->SetAlias("track0tpcNsigma_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0)",1));
   treeV0->SetAlias("track0tpcNsigma_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0)",1));
@@ -388,6 +464,120 @@ void makeAliasesV0(){
   treeV0->SetAlias("nCrossRows0","(track0.GetTPCClusterInfo(3,1)+0)");
   treeV0->SetAlias("dca1_r","track1.fD");                                                                                                                                                                    treeV0->SetAlias("dca1_z","track1.fZ");
   treeV0->SetAlias("nCrossRows1","(track1.GetTPCClusterInfo(3,1)+0)");
+
+
+  // Aliases for the QA!
+
+  // for the new splines // no correction
+
+  treeV0->SetAlias("track0tpcNsigma_no_corrected_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,0)",1));
+  treeV0->SetAlias("track0tpcNsigma_no_corrected_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,0)",1));
+  treeV0->SetAlias("track0tpcNsigma_no_corrected_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,0)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_no_corrected_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,0)",1));
+  treeV0->SetAlias("track1tpcNsigma_no_corrected_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,0)",1));
+  treeV0->SetAlias("track1tpcNsigma_no_corrected_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,0)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_no_corrected_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_no_corrected_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_no_corrected_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_no_corrected_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,0, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_no_corrected_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,0, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_no_corrected_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,0, 1,0+0)",1));
+
+
+
+  // for the corercted new splines, // eta correlation
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,1)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,1)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,1)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,1)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,1)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,1)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,1, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,1, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,1, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,1, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,1, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,1, 1,0+0)",1));
+
+  // for the corercted new splines, // multiplicity correlation
+
+  treeV0->SetAlias("track0tpcNsigma_corrected_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,2)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,2)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_multip_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,2)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_corrected_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,2)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,2)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_multip_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,2)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_multip_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,2, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_multip_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,2, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_multip_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,2, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_multip_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,2, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_multip_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,2, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_multip_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,2, 1,0+0)",1));
+
+
+  // for the corercted new splines, // pileup correlation
+
+  treeV0->SetAlias("track0tpcNsigma_corrected_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,4)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,4)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_pileup_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,4)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_corrected_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,4)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,4)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_pileup_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,4)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_pileup_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,4, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,4, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_pileup_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,4, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_pileup_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,4, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,4, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_pileup_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,4, 1,0+0)",1));
+
+  
+  // for the corercted new splines, // eta and multiplicity correlation
+
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,3)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,3)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_multip_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,3)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_multip_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,3)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_multip_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,3)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_multip_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,3)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_multip_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,3, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_multip_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,3, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_multip_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,3, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_multip_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,3, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_multip_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,3, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_multip_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,3, 1,0+0)",1));
+
+  // for the corercted new splines, // eta and pileup correlation
+
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,0+0,7)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,0+0,7)",1));
+  treeV0->SetAlias("track0tpcNsigma_corrected_eta_pileup_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,0+0,7)",1));
+
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_pileup_el",Form("AliPIDtools::NumberOfSigmas(%d,1, 0,1+0,7)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_pileup_pi",Form("AliPIDtools::NumberOfSigmas(%d,1, 2,1+0,7)",1));
+  treeV0->SetAlias("track1tpcNsigma_corrected_eta_pileup_pr",Form("AliPIDtools::NumberOfSigmas(%d,1, 4,1+0,7)",1));
+
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_pileup_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,7, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,7, 0,0+0)",1));
+  treeV0->SetAlias("track0ExpectedTPCSignalV0_corrected_eta_pileup_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,7, 0,0+0)",1));
+
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_pileup_el",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,0,7, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_pileup_pi",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,2,7, 1,0+0)",1));
+  treeV0->SetAlias("track1ExpectedTPCSignalV0_corrected_eta_pileup_pr",Form("AliPIDtools::GetExpectedTPCSignalV0(%d,4,7, 1,0+0)",1));
 
 
     for (Int_t i=0; i<4; i++){
@@ -491,11 +681,18 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
   treeV0->SetAlias("isPileUp", "(multSDD+multSSD) < (-3000 +0.0099*tpcClusterMult +9.426e-10*tpcClusterMult*tpcClusterMult)");
   treeV0->SetAlias("tpc_cls0","track0.fTPCncls");
   treeV0->SetAlias("tpc_cls1","track1.fTPCncls");
+  treeV0->SetAlias("its_cls0","track0.fITSncls");
+  treeV0->SetAlias("its_cls1","track1.fITSncls");
+  treeV0->SetAlias("tpc_chi2_0","track0.fTPCchi2");
+  treeV0->SetAlias("tpc_chi2_1","track1.fTPCchi2");
+  treeV0->SetAlias("its_chi2_0","track0.fITSchi2");
+  treeV0->SetAlias("its_chi2_1","track1.fITSchi2");
+  
 
   gROOT->cd();
   treeV0->RemoveFriend(treeEvent);
   if (entries<0) entries = treeV0->GetEntries();
-  TTree * treeClean = treeV0->CopyTree("(cleanK0||cleanGamma||cleanLambda||cleanALambda)","",entries,firstEntry);
+  TTree * treeClean = treeV0->CopyTree("(cleanK0||cleanGamma||cleanLambda||cleanALambda)","isMinBias==1",entries,firstEntry);
   treeV0->AddFriend(treeEvent,"E");
   treeClean->BuildIndex("gid");
   treeClean->AddFriend(treeEvent,"E");
@@ -507,8 +704,8 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
     "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
     "v0.fPointAngle:kf.fChi2:K0Like:ELike:LLike:ALLike:cleanK0:cleanGamma:cleanLambda:cleanALambda:track0status:track1status:track0_hasTOF:track1_hasTOF:"
     "track0.fTPCsignal:track1.fTPCsignal:track0.fTPCsignalN:track1.fTPCsignalN:type:track0.fITSsignal:track1.fITSsignal:"
-    "track0P:track0Pt:track0Eta:track0Phi:track0Px:track0Py:track0Pz:track0Tgl:dca0_r:dca0_z:nCrossRows0:tpc_cls0:"
-    "track1P:track1Pt:track1Eta:track1Phi:track1Px:track1Py:track1Pz:track1Tgl:dca1_r:dca1_z:nCrossRows1:tpc_cls1:"
+    "track0P:track0Pt:track0Eta:track0Phi:track0Px:track0Py:track0Pz:track0Tgl:dca0_r:dca0_z:nCrossRows0:tpc_cls0:its_cls0:tpc_chi2_0:its_chi2_0:"
+    "track1P:track1Pt:track1Eta:track1Phi:track1Px:track1Py:track1Pz:track1Tgl:dca1_r:dca1_z:nCrossRows1:tpc_cls1:its_cls1:tpc_chi2_1:its_chi2_1:"
     "track0tofNsigmaElectron:track0tofNsigmaPion:track0tofNsigmaKaon:track0tofNsigmaProton:"
     "track1tofNsigmaElectron:track1tofNsigmaPion:track1tofNsigmaKaon:track1tofNsigmaProton:"
     "track0tpcNsigma_el:track0tpcNsigma_pi:track0tpcNsigma_ka:track0tpcNsigma_pro:"
@@ -536,7 +733,7 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
 
 
   AliPIDtools::SetFilteredTreeV0(treeClean);
-  AliTreePlayer::MakeCacheTreeChunk(treeClean,cacheVariables.Data(),"V0tree.root","V0Flat","isMinBias==1",entries,firstEntry,chunkSize);
+  AliTreePlayer::MakeCacheTreeChunk(treeClean,cacheVariables.Data(),"V0tree.root","V0Flat","",entries,firstEntry,chunkSize);
   TFile *fV0Clean= new TFile("V0tree.root","update");
   treeClean->Write("V0s");
   fV0Clean->Flush();
@@ -574,7 +771,7 @@ void cacheEventFlat(){
                           "multV0A:multV0C:multT0A:multT0C:multITSA:multITSC:"
                           "multV0A0:multV0C0:multV0A1:multV0C1:multITSA0:multITSC0:multITSA1:multITSC1:"
                           "centV0:centITS0:centITS1";                    /// to add QA variables
-  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","isMinBias==1");
+  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","");
    ::Info("cacheEventFlat","END");
    timer.Print();
 }
@@ -607,9 +804,12 @@ void cacheCleanTrack(){
   tree->SetAlias("isMinBias","triggerMask&(0x1)");
   tree->SetAlias("isPileUp", "(multSDD+multSSD) < (-3000 +0.0099*tpcClusterMult +9.426e-10*tpcClusterMult*tpcClusterMult)");
   tree->SetAlias("tpc_cls","esdTrack.fTPCncls");
+  tree->SetAlias("its_cls","esdTrack.fITSncls");
+  tree->SetAlias("tpc_chi2","esdTrack.fTPCchi2");
+  tree->SetAlias("its_chi2","esdTrack.fITSchi2");
 
   TString cacheVariables=""
-                          "fTPCsignal:esdTrack.fITSsignal:esdTrack.fTRDsignal:esdTrack.fTPCsignalN:trackP:trackPt:tgl:trackEta:tpc_cls:ntracks:trackstatus:"
+                          "fTPCsignal:esdTrack.fITSsignal:esdTrack.fTRDsignal:esdTrack.fTPCsignalN:trackP:trackPt:tgl:trackEta:tpc_cls:its_cls:tpc_chi2:its_chi2:ntracks:trackstatus:"
                           "track_tpcNsigma_el:track_tpcNsigma_pi:track_tpcNsigma_ka:track_tpcNsigma_pro:track_tpcNsigma_deut:track_tpcNsigma_tri:track_tpcNsigma_He3:"
                           "tracktofNsigmaElectron:tracktofNsigmaPion:tracktofNsigmaKaon:tracktofNsigmaProton:tracktofNsigmaDeuteron:tracktofNsigmaTrition:tracktofNsigmaHelium3:"
                           "track_ExpectedTPCSignalV0_el:track_ExpectedTPCSignalV0_pi:track_ExpectedTPCSignalV0_ka:track_ExpectedTPCSignalV0_pro:track_ExpectedTPCSignalV0_deut:"

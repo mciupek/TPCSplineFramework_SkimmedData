@@ -1,0 +1,13 @@
+
+#gSystem->Load("/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/FlatTreeAna/lib/AliSkimmedDataAnalysisMaker.so");
+
+
+#ana->read_V0("/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/TreePrduction/Run_all/output_old_splines/data/2018/LHC18q/295585/pass3/chunks_1/V0tree.root");
+
+aliroot -l -b <<EOF
+gSystem->Load("/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/FlatTreeAna/lib/AliSkimmedDataAnalysisMaker.so");
+ AliSkimmedDataAnalysisMaker *ana=new AliSkimmedDataAnalysisMaker(/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/FlatTreeAna/lib/AliSkimmedDataAnalysisMaker.so"test.root");
+ana->bookHistogram();
+ana->read_V0("/lustre/nyx/alice/users/xbai/work/SkimmedDataAna/Run18/TPCsplines/TreeAna/test_50_root.root");
+ana->WriteHistogram();
+EOF
