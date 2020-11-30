@@ -74,6 +74,7 @@ if [[ "$trainName" = "V0"* ]];then
 ########## STEP 0 ####################################
 elif [ "$1" = "0" ]; then
 echo "****** Step 0: Extract Bethe-Bloch Curve ****** "
+declare -a StringArray=("histElectron" "histElectronV0" "histElectronV0plusTOF" "histPionTPC" "histPionTOF" "histPionV0" "histPionV0plusTOF" "histKaonTPC" "histKaonTOF" "histProtonTPC" "histProtonTOF" "histProtonV0" "histProtonV0plusTOF" "histDeuteronTPC" "histDeuteronTOF" "histTritionTPC" "histTritonTOF" "histHelium3TPC" "histHelium3TOF")
   if [ ! -e $basefolder/$etaTreeName ];then
     if [ -e $basefolder/TPCPIDEtaTree.root ];then
       mv $basefolder/TPCPIDEtaTree.root $folder/$etaTreeName
@@ -100,9 +101,15 @@ echo "****** Step 0: Extract Bethe-Bloch Curve ****** "
       bash $software/HelpFunctions.sh "LoopThroughString" $MultSeparationString 'root.exe "'$software'/extract.C(\"'$folder/TPCresidualPID.root'\", \"'$spline2'\", \"DATA\", \"'$period'\", \"'$pass'\", \"'$collsys'\", kFALSE, '$BBFunctionNumber', \"'$software'\", $MultLow, $MultHigh)" -l -b -q;for FILE in '$folder'/*.pdf '$folder'/splines_QA*.root '$folder'/V0_dEdx_purity*.root; do fileext=${FILE##*.};mv $FILE '$folder'/SplineQA/$(basename $FILE .$fileext)"_"$MultLow"_"$MultHigh.$fileext; done; mv '$spline2' '$folder/$(basename $spline2 .root)'"_"$MultLow"_"$MultHigh.root'
       cp $folder/SplineQA/bethebloch* $folder
     else
+      mkdir $folder/Fit
+      for val in ${StringArray[@]}; do
+        mkdir $folder/Fit/$val
+      done
+      mkdir $folder/Fit/EtaMap
       root.exe "$software/extract.C(\"$folder/TPCresidualPID.root\", \"$folder/$spline2\", \"DATA\", \"$period\", \"$pass\", \"$collsys\" , kFALSE, $BBFunctionNumber, \"$software\")" -l -b -q
     fi
   else
+    mkdir $folder/Fit
     root.exe "$software/extract.C(\"$folder/TPCresidualPID.root\", \"$folder/$spline2\", \"DATA\", \"$period\", \"$pass\", \"$collsys\" , kTRUE, $BBFunctionNumber, \"$software\")" -l
   fi
 echo "****** Step 0 finished *****"
@@ -188,7 +195,7 @@ echo "Extract multiplicity dependence"
 #PbPb:3,800, tanThetaBin2, slopes2 and sigmaSlopes, pBin9
   if [ $collsys = "PPB" ];then
     widthfactor=4
-    multstepsize=150
+    multstepsize=500
   elif [ $collsys = "PBPB" ];then
     widthfactor=3
     multstepsize=800

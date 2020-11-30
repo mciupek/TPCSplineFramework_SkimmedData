@@ -25,7 +25,7 @@ Int_t fFailures=0;
 
 Bool_t AddOADBObjectFromSplineFile(const TString fileName,
                                    const Int_t firstRun, const Int_t lastRun,
-                                   const TString pass,
+                                   const Int_t pass,
                                    const TString dEdxType="",
                                    const TString multCorr="",
                                    const TString resolution="",
@@ -125,7 +125,7 @@ TObjArray* SetupSplineArrayFromFile(const TString fileName)
 //______________________________________________________________________________
 Bool_t AddOADBObjectFromSplineFile(const TString fileName,
                                    const Int_t firstRun, const Int_t lastRun,
-                                   const TString pass,
+                                   const Int_t pass,
                                    const TString dEdxType,
                                    const TString multCorr,
                                    const TString resolution,
@@ -200,7 +200,10 @@ Bool_t AddOADBObjectFromSplineFile(const TString fileName,
       arrTPCPIDResponse->Add(pileupCorrection);
     }
   }
-  fContainer.AppendObject(arrTPCPIDResponse, firstRun, lastRun, pass);
+
+  TString pass_name; 
+  pass_name.Form("%d",pass);
+  fContainer.AppendObject(arrTPCPIDResponse, firstRun, lastRun, pass_name);
 
   // ---| multiplicity estimator |---
   if (multEstimator != AliTPCPIDResponse::kNumberOfESDTracks) {

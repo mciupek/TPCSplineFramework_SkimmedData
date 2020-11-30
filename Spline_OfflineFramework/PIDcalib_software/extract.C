@@ -14,7 +14,7 @@ void extract(const char* input, const char* splines, const char* DataOrMc, const
   }
   else {
     if (collsys != "PP") {
-      hsp2->GetAxis(6)->SetRangeUser(0.0, 24999.9); // limits the multiplicity to events with a maximum of 500 tracks
+      hsp2->GetAxis(6)->SetRangeUser(0.0, 4999.9); // limits the multiplicity to events with a maximum of 500 tracks
       //hsp2->GetAxis(7)->SetRangeUser(0,0.9); // do avoid detector effects.
 
     }

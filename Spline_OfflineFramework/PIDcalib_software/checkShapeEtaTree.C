@@ -1820,7 +1820,8 @@ TH2* checkShapeEtaTree(TTree* tree = 0x0, Double_t resolutionFactorX = 1/*2 or 2
       }
       else {
         Double_t lowThreshold = 0.6;
-        Double_t highThreshold = 1.6;
+        Double_t highThreshold = 1.4;
+        hTempProjectionZ->Rebin(4);
         FindFitRange(hTempProjectionZ, lowThreshold, highThreshold);
         TFitResultPtr fitResPtr = hTempProjectionZ->Fit("gaus", "QS", "", lowThreshold, highThreshold);
         fitRes = ((Int_t)fitResPtr == 0) ? (TFitResult*)fitResPtr.Get()->Clone() : 0x0;
@@ -1831,6 +1832,11 @@ TH2* checkShapeEtaTree(TTree* tree = 0x0, Double_t resolutionFactorX = 1/*2 or 2
         latex.SetNDC(kTRUE);
         TString BinTitel= Form("(Tan(#Theta),p) = (%f,%f)", hPreMap->GetXaxis()->GetBinCenter(binX),hPreMap->GetYaxis()->GetBinCenter(binY));
 
+        Double_t eta_low = hPreMap->GetXaxis()->GetBinLowEdge(binX);
+        Double_t eta_up = hPreMap->GetXaxis()->GetBinUpEdge(binX);
+        Double_t momentum_low = hPreMap->GetYaxis()->GetBinLowEdge(binY);
+        Double_t momentum_up = hPreMap->GetYaxis()->GetBinUpEdge(binY);
+
         TCanvas *c_test = new TCanvas();
         c_test->SetLogy();
         hTempProjectionZ->SetStats(kFALSE);
@@ -1838,7 +1844,7 @@ TH2* checkShapeEtaTree(TTree* tree = 0x0, Double_t resolutionFactorX = 1/*2 or 2
         TF1 *ftest = (TF1*) hTempProjectionZ->GetFunction("gaus");
         latex.DrawLatex(0.7,0.8,BinTitel.Data());
         //ftest->Draw("same");
-        c_test->SaveAs(Form("Fit/GaussianFit_BinY%d_BinX%d.pdf",binY,binX));
+        c_test->SaveAs(Form("Fit/EtaMap/GaussianFit_from%fGeVto%fGeV_frometa_low%ftoetaup%f.pdf",momentum_low,momentum_up,eta_low, eta_up));
       }
 
       Double_t mean = 0;

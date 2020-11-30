@@ -1612,12 +1612,12 @@ TObjArray * AliTPCcalibResidualPID2::GetResidualGraphs(THnSparseF * histPidQA, c
 
   Float_t nSigmaPionMinus   =  -3.999;
   Float_t nSigmaPionPlus    =   3.999;
-  Float_t nSigmaKaonMinus   =  -4.199; //before 4.1999
-  Float_t nSigmaKaonPlus    =  4.7999; // before 4.7999
+  Float_t nSigmaKaonMinus   =  -6.199; //before 4.1999
+  Float_t nSigmaKaonPlus    =  6.7999; // before 4.7999
   Float_t nSigmaElectronMinus = -1.999; //-1.999
   Float_t nSigmaElectronPlus  =  4.999; //4.999
-  Float_t nSigmaProtonMinus   =  -6.199;
-  Float_t nSigmaProtonPlus    =  6.7999;
+  Float_t nSigmaProtonMinus   =  -4.199;
+  Float_t nSigmaProtonPlus    =  3.999;
   Float_t nSigmaDeuteronMinus = -6;
   Float_t nSigmaDeuteronPlus = 6;
   Float_t nSigmaTritonMinus = -6;
@@ -1762,6 +1762,7 @@ for (Int_t i = 1; i <= 2; i++){
   //
   hist->GetAxis(4)->SetRangeUser(nSigmaProtonMinus,nSigmaProtonPlus); // protons --> not reliable, use PATTERN RECOGNITION
   TH2D * histProtonTPC = hist->Projection(1,0);
+  histProtonTPC->RebinX(2);
   histProtonTPC->SetName("histProtonTPC");
   histProtonTPC->GetXaxis()->SetRangeUser(0.15,0.7);
   histProtonTPC->GetYaxis()->SetRangeUser(50, hist->GetAxis(1)->GetBinUpEdge(hist->GetAxis(1)->GetNbins()));
@@ -1786,7 +1787,7 @@ for (Int_t i = 1; i <= 2; i++){
   TGraphErrors * protonTpcGraph = new TGraphErrors(protonPointsTPC);
   protonTpcGraph->SetName("protonTpcGraph");
   for(Int_t ip = 0; ip < protonTpcGraph->GetN(); ip ++) {
-    Bool_t removePoint = protonTpcGraph->GetY()[ip] < 10 || protonTpcGraph->GetEY()[ip]/protonTpcGraph->GetY()[ip] > 0.05 // TODO Larger tolerance, since this is only for the correction function, where 5% are still better than no data point
+    Bool_t removePoint = protonTpcGraph->GetY()[ip] < 10 || protonTpcGraph->GetEY()[ip]/protonTpcGraph->GetY()[ip] > 0.5 // TODO Larger tolerance, since this is only for the correction function, where 5% are still better than no data point
                         || protonTpcGraph->GetX()[ip] > (useV0s ? (isPPb ? 0.499 : 0.349) : 0.649); // If V0s are to be used, don't use TPC only protons to too high momenta; for pPb low statistics for the moment, therefore, go a bit further with TPC protons
                         //TODO NOW -> Changed range of TPC-signal -> Hopefully, sufficient statistics now for very low momenta!|| protonTpcGraph->GetX()[ip] < 0.19; // Added this cut because almost always bad statistics below 0.19
     if (removePoint) {
@@ -1799,6 +1800,7 @@ for (Int_t i = 1; i <= 2; i++){
   hist->GetAxis(4)->SetRange(0,-1);
   hist->GetAxis(5)->SetRangeUser(-2.999,2.999); // 3sigma in TOF
   TH2D * histProtonTOF = hist->Projection(1,0);
+  histProtonTOF->Rebin(2);
   histProtonTOF->SetName("histProtonTOF");
   histProtonTOF->GetXaxis()->SetRangeUser(0.6,2.5);
 
@@ -1965,10 +1967,11 @@ for (Int_t i = 1; i <= 2; i++){
   //
   hist->GetAxis(4)->SetRangeUser(nSigmaKaonMinus,nSigmaKaonPlus); // kaons
   TH2D * histKaonTPC = hist->Projection(1,0);
+  //histKaonTPC->RebinX(2);
   histKaonTPC->SetName("histKaonTPC");
   histKaonTPC->GetXaxis()->SetRangeUser(0.12,0.6999);
 
-    TF1 betaSq2("betaSq","20./TMath::Power(x,1.3) + (1-TMath::Erf((x-0.3) / 2.95)) * 20",0.1,10);
+    TF1 betaSq2("betaSq","20./TMath::Power(x,1.3) + (1-TMath::Erf((x-0.3) / 2.55)) * 20",0.1,10);
   for(Int_t ix = 1; ix <= histKaonTPC->GetXaxis()->GetNbins(); ix++) {
      for(Int_t jy = 1; jy <= histKaonTPC->GetYaxis()->GetNbins(); jy++) {
        Float_t yPos = histKaonTPC->GetYaxis()->GetBinCenter(jy);
@@ -1986,7 +1989,7 @@ for (Int_t i = 1; i <= 2; i++){
   TGraphErrors * kaonTpcGraph = new TGraphErrors(kaonPointsTPC);
   kaonTpcGraph->SetName("kaonTpcGraph");
   for(Int_t ip = 0; ip < kaonTpcGraph->GetN(); ip ++) {
-    Bool_t removePoint = kaonTpcGraph->GetY()[ip] < 10 || kaonTpcGraph->GetEY()[ip]/kaonTpcGraph->GetY()[ip] > 0.02
+    Bool_t removePoint = kaonTpcGraph->GetY()[ip] < 10 || kaonTpcGraph->GetEY()[ip]/kaonTpcGraph->GetY()[ip] > 0.5
                         //|| kaonTpcGraph->GetX()[ip] < 0.12 || kaonTpcGraph->GetX()[ip] > 0.319; //TODO BEN was > 0.399 - default
                         || kaonTpcGraph->GetX()[ip] < 0.12 || kaonTpcGraph->GetX()[ip] > 0.44; //edited by JY #1, to avoid empty points
     if (removePoint) {
@@ -2011,6 +2014,7 @@ for (Int_t i = 1; i <= 2; i++){
   }*/
 
   TH2D * histKaonTOF = hist->Projection(1,0);
+  //histKaonTOF->RebinX(2);
   histKaonTOF->SetName("histKaonTOF");
   histKaonTOF->GetXaxis()->SetRangeUser(0.3,1.5);
   
@@ -2022,6 +2026,7 @@ for (Int_t i = 1; i <= 2; i++){
        if (yPos < betaSq2.Eval(xPos)) histKaonTOF->SetBinContent(bin,0);
      }
     }
+    
     FitSlicesY(histKaonTOF, heightFractionForFittingRange, cutForFitting, "QR", &arr);
   TH1D * kaonPointsTOF = (TH1D*) arr.At(1)->Clone();
   //
@@ -2029,7 +2034,7 @@ for (Int_t i = 1; i <= 2; i++){
   kaonTofGraph->SetName("kaonTofGraph");
   //
   for(Int_t ip = 0; ip < kaonTofGraph->GetN(); ip ++) {
-    Bool_t removePoint = kaonTofGraph->GetY()[ip] < 10 || kaonTofGraph->GetEY()[ip]/kaonTofGraph->GetY()[ip] > 0.02 || kaonTofGraph->GetX()[ip] > 1.0
+    Bool_t removePoint = kaonTofGraph->GetY()[ip] < 10 || kaonTofGraph->GetEY()[ip]/kaonTofGraph->GetY()[ip] > 0.5|| kaonTofGraph->GetX()[ip] > 1.0
                          //|| kaonTofGraph->GetX()[ip] < 0.36; //TODO BEN NOW was 0.5
                          || kaonTofGraph->GetX()[ip] < 0.44; //edited by JY #2 (correlated to edit#1)
     if (removePoint) {
@@ -2154,7 +2159,7 @@ for (Int_t i = 1; i <= 2; i++){
   deuteronTpcGraph->SetName("deuteronTpcGraph");
   for(Int_t ip = 0; ip < deuteronTpcGraph->GetN(); ip ++) {
     Bool_t removePoint = deuteronTpcGraph->GetY()[ip] < 10 || deuteronTpcGraph->GetEY()[ip]/deuteronTpcGraph->GetY()[ip] > 0.02
-                        || deuteronTpcGraph->GetX()[ip] > 1.3 || deuteronTpcGraph->GetX()[ip] < 0.25; //TODO BEN was > 0.399 - default
+                        || deuteronTpcGraph->GetX()[ip] > 1.3 || deuteronTpcGraph->GetX()[ip] < 0.35; //TODO BEN was > 0.399 - default
         //                || deuteronTpcGraph->GetX()[ip] < 0.12 || deuteronTpcGraph->GetX()[ip] > 0.44; //edited by JY #1, to avoid empty points
     if (removePoint) {
       deuteronTpcGraph->RemovePoint(ip);
@@ -3053,7 +3058,7 @@ for (Int_t i = 1; i <= 2; i++){
     //listColl->Add(pionV0plusTOFGraphForBBfit);
     listColl->Add(electronV0plusTOFGraphForBBfit);//nschmidt2016 for PbPb was uncommented for pp
     //listColl->Add(protonV0plusTOFGraphForBBfit);
-    listColl->Add(deuteronTpcGraph);          //BB fit deuteron
+    //listColl->Add(deuteronTpcGraph);          //BB fit deuteron
     //listColl->Add(deuteronTofGraph);
   }
   MergeGraphErrors(graphAll, listColl);
@@ -3246,7 +3251,7 @@ for (Int_t i = 1; i <= 2; i++){
   //
   //
 
-  canvasQAtpc->SaveAs("splines_QA_ResidualGraphsTPC.root");
+  hallo->SaveAs("splines_QA_ResidualGraphsTPC.root");
   canvasQAtof->SaveAs("splines_QA_ResidualGraphsTOF.root");
   canvasQAv0->SaveAs("splines_QA_ResidualGraphsV0.root");
   canvasQAv0plusTOF->SaveAs("splines_QA_ResidualGraphsV0plusTOF.root");
@@ -3757,7 +3762,7 @@ TObjArray * AliTPCcalibResidualPID2::GetResponseFunctions(TF1* parametrisation, 
   }
 
   graphProtonTPC->Sort(); // Sort points along x. Next, the very first point will be used to determine the starting point of the correction function
-  TF1 * funcCorrProton = new TF1("funcCorrProton", "pol6", TMath::Max(graphProtonTPC->GetX()[0], 0.15),1.2); // TODO BEN was 0.18 - 0.85 //nschmidt2016 was ...,1.0); //was then 2.0 
+  TF1 * funcCorrProton = new TF1("funcCorrProton", "pol5", TMath::Max(graphProtonTPC->GetX()[0], 0.18),1.0); // TODO BEN was 0.18 - 0.85 //nschmidt2016 was ...,1.0); //was then 2.0 
   //TF1 * funcCorrProton = new TF1("funcCorrProton", "pol9", TMath::Max(graphProtonTPC->GetX()[0], 0.15),1.2); // TODO BEN was 0.18 - 0.85 //nschmidt2016 was ...,1.0); //was then 2.0  LHC18r_pass3....
   graphProtonTPC->Fit(funcCorrProton, "QREX0M");
   // TF1 * funcCorrProton = new TF1("funcCorrProton", "0", 0.1, 1);
@@ -3788,9 +3793,11 @@ TObjArray * AliTPCcalibResidualPID2::GetResponseFunctions(TF1* parametrisation, 
   graphKaonTPC->GetYaxis()->SetLabelSize(0.04);
   graphKaonTPC->GetYaxis()->SetTitleOffset(0.85);
   graphKaonTPC->GetXaxis()->SetTitleOffset(1.0);
+  //graphKaonTPC->GetYaxis()->SetRangeUser(-10,10);
+  //graphKaonTPC->GetXaxis()->SetRangeUser(0.01,3);
   graphKaonTPC->Draw("ap");
 
-  Bool_t kaonGraphHasDataPoints = kTRUE;
+  Bool_t kaonGraphHasDataPoints = kFALSE;
   if (graphKaonTPC->GetN() <= 0)  {
     Printf("WARNING - GetResponseFunctions: Kaon graph has no data points! Kaon splines will just be pure BB without low-p correction!");
     kaonGraphHasDataPoints = kFALSE;
@@ -3818,12 +3825,14 @@ TObjArray * AliTPCcalibResidualPID2::GetResponseFunctions(TF1* parametrisation, 
       // In case of data there are sometimes problems to fit the shape with one function (could describe the overall deviation,
       // but will not cover all the details).
       // Nevertheless, this shape (including most of the "details") can be fitted with the following approach with two functions
+      
+      /*
       TF1 * funcCorrKaon1 = new TF1("funcCorrKaon1", fitFuncString.Data(),
                                     TMath::Max(graphKaonTPC->GetX()[0], 0.25), 1.981); 
-      graphKaonTPC->Fit(funcCorrKaon1, "QREX0M", "same", TMath::Max(graphKaonTPC->GetX()[0], 0.25), 1.0);
+      graphKaonTPC->Fit(funcCorrKaon1, "QREX0M", "same", TMath::Max(graphKaonTPC->GetX()[0], 0.4), 0.8);
 
       TF1 * funcCorrKaon2 = new TF1("funcCorrKaon2", "pol6", TMath::Max(graphKaonTPC->GetX()[0], 0.25),  1.981);
-      graphKaonTPC->Fit(funcCorrKaon2, "QREX0M", "same", (isMC ? 1.981 : 1.0), 1.981);
+      graphKaonTPC->Fit(funcCorrKaon2, "QREX0M", "same", (isMC ? 1.981 : 1.2), 1.981);
 
       funcCorrKaon = new TF1("funcCorrKaon",
                              "funcCorrKaon1 * 0.5*(1.+TMath::Erf((1 - x) / 0.1)) + ([0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x+[5]*x*x*x*x*x+[6]*x*x*x*x*x*x) * 0.5*(1.+TMath::Erf((x - 1) / 0.1))",
@@ -3832,6 +3841,12 @@ TObjArray * AliTPCcalibResidualPID2::GetResponseFunctions(TF1* parametrisation, 
       for (Int_t i = funcCorrKaon1->GetNpar(), j = 0; i < funcCorrKaon1->GetNpar() + funcCorrKaon2->GetNpar(); i++, j++) {
         funcCorrKaon->SetParameter(j, funcCorrKaon2->GetParameter(j));
       }
+*/
+
+      // only one function for kaon fit...
+      funcCorrKaon = new TF1("funcCorrKaon", "pol7", 0.4, 1.0);
+      graphKaonTPC->Fit(funcCorrKaon, "QREX0M","",0.4,1.0);
+      
 
       funcCorrKaon->SetLineColor(kRed);
       funcCorrKaon->GetHistogram()->DrawClone("csame");
@@ -4579,7 +4594,7 @@ TF1* AliTPCcalibResidualPID2::FitBB(TObjArray* inputGraphs, Bool_t isMC, Bool_t 
   graphAll->Fit(funcBB, "REX0M");
   funcBB->SetRange(from, to);
 //   funcBB->GetParameters(parametersBBForward);
-//gStyle->SetOptFit(1110);
+gStyle->SetOptFit(1110);
 
   TCanvas * canvDelta_1 = CreateBBCanvas(inputGraphs, isMC, funcBB);
   TCanvas * canvDelta_2 = CreateResidualCanvas(graphAll, funcBB);
@@ -4706,6 +4721,8 @@ void AliTPCcalibResidualPID2::FitSlicesY(TH2 *hist, Double_t heightFractionForRa
 
   for (Int_t ibin=axis->GetFirst(); ibin<=axis->GetLast(); ++ibin){
     TH1 *h=hist->ProjectionY("_temp",ibin,ibin);
+    Double_t momentum_low = hist->GetXaxis()->GetBinLowEdge(ibin);
+    Double_t momentum_up = hist->GetXaxis()->GetBinUpEdge(ibin);
     if (!h)
       continue;
 
@@ -4759,8 +4776,8 @@ void AliTPCcalibResidualPID2::FitSlicesY(TH2 *hist, Double_t heightFractionForRa
     h->Draw();
     TF1 *ftest = (TF1*) h->GetFunction("gaus");
     Double_t mean = h->GetMean();
-    h->GetXaxis()->SetRangeUser(0,1000);
-    //c_test->SaveAs(Form("Fit/GaussianFit_%s_%d.pdf",name,ibin));
+    h->GetXaxis()->SetRange(h->FindFirstBinAbove(0),h->FindLastBinAbove(0));
+    c_test->SaveAs(Form("Fit/%s/GaussianFit_%s_from%fGeVto%fGeV.pdf",name,name,momentum_low,momentum_up));
     delete h;
   }
 }
