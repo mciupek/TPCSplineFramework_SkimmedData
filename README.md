@@ -23,7 +23,7 @@ These steps need to be repeated until the splines converge to a reasonable resul
 
 ## How to create the splines (Step-by-Step).
 
-1) Download the github directory to your user directory at lustre GSI.
+1) Download the github directory to your user directory at lustre GSI. (git clone https://github.com/mciupek/TPCSplineFramework_SkimmedData.git)
 2) Switch to the directory code_FlatTreeCreation.
 3) load aliroot using the following command (at the moment Marians singularity container is loaded, but in principle other aliroot5 installations are fine)
    - source  /lustre/alice/users/miranov/NOTES/alice-tpc-notes2/JIRA/ATO-500/setDefaultEnv.sh
