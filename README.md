@@ -28,6 +28,9 @@ These steps need to be repeated until the splines converge to a reasonable resul
 3) load aliroot using the following command (at the moment Marians singularity container is loaded, but in principle other aliroot5 installations are fine)
    - source  /lustre/alice/users/miranov/NOTES/alice-tpc-notes2/JIRA/ATO-500/setDefaultEnv.sh
    - alicehub5Sif /lustre/alice/users/miranov/NOTESData/alice-tpc-notes
+   - singAliroot
+   - eval $(alienv  -w /alicesw/sw  printenv AliPhysics/latest)
+   - aliroot (should start the aliroot shell)
    
 4) In the code fitdEdxCorrectionFiltered.C go to the function SetUpNewSpline(Int_t run) and make sure the default splines are loaded without eta and multiplicity correction. In addition make sure you select the correct pass and pass number. For that comment out: 
    - fPIDResponse->SetCustomTPCpidResponseOADBFile("...");
