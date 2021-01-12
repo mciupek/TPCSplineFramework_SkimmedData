@@ -8,4 +8,8 @@
 #pragma link C++ class TrackFlatAna+;
 #pragma link C++ class AliSkimmedDataAnalysisMaker+;
 
+
+#pragma link C++ class AliTimeRangeMasking<ULong64_t, UShort_t>+;
+#pragma link C++ class AliTimeRangeCut;
+
 #endif

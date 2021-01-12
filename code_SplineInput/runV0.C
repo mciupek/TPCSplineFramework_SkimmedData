@@ -1,7 +1,8 @@
-void runV0(TString filelist="list/V0_LHC16s.list",
-           TString filelist_track = "list/track_LHC16s.list", 
+void runV0(TString filelist="list/V0_LHC18r.list",
+           TString filelist_track = "list/track_LHC18r.list", 
            Bool_t enablePileUpCut=kFALSE,
-           Bool_t isPbPb = kFALSE) {
+           Bool_t isPbPb = kTRUE) {
+  
   gSystem->Load("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_SplineInput/AliSkimmedDataAnalysisMaker.so");
 
   //  R__LOAD_LIBRARY(HelloWorld.so);
@@ -27,7 +28,7 @@ void runV0(TString filelist="list/V0_LHC16s.list",
       ++ifile;
       cout <<"sngl_file: "<<ifile<<" : "<<filename<<endl;
          ana->read(filename,enablePileUpCut);
-		    // ana->Filltreeformap_V0(filename,enablePileUpCut);
+		     //ana->Filltreeformap_V0(filename,enablePileUpCut);
     }
   cout<< "this is for QA"<<endl;
   
@@ -43,7 +44,7 @@ void runV0(TString filelist="list/V0_LHC16s.list",
       ++ifile_track;
       cout <<"sngl_file: "<<ifile_track<<" : "<<filename_track<<endl;
          ana->Read_tracktree(filename_track,enablePileUpCut);
-	      // ana->Filltreeformap_track(filename_track,enablePileUpCut);
+	       //ana->Filltreeformap_track(filename_track,enablePileUpCut);
     }
 
 

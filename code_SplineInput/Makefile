@@ -19,20 +19,20 @@ ROOTLIBS = $(shell root-config --libs)
 ROOTGLIBS = $(shell root-config --glibs)
 
 # Directories
-HEADRDIR = .
-
+HEADRDIR = $(ALICE_PHYSICS)/include
 # debug option: -g
 # no exceptions: -fno-exceptions
 
 CXX = g++
-CXXFLAGS = -O3 -Wall -fPIC -g -std=c++11
+CXXFLAGS = -O3 -Wall -fPIC -g  -std=c++11
 LD = g++
 LDFLAGS = -O3 -Wall -g 
 SOFLAGS = -shared
 ARCHFLAGS =
 
 #
-CXXFLAGS += $(ROOTCFLAGS) -I$(HEADRDIR)
+CXXFLAGS += $(ROOTCFLAGS) -I$(HEADRDIR) -I$(ALICE_ROOT)/include -I$(ALICE_PHYSICS)/include
+
 LIBS = $(ROOTLIBS)
 GLIBS = $(ROOTGLIBS)
 
@@ -42,7 +42,7 @@ GLIBS = $(ROOTGLIBS)
 
 $(PROGRAM).so: $(OBJS)
 	@echo "Linking $(PROGRAM).so ..."
-	$(LD) $(ARCHFLAGS) $(LDFLAGS) $(SOFLAGS) $(OBJS) $(ROOTLIBS) -o$(PROGRAM).so
+	$(LD) $(ARCHFLAGS) $(LDFLAGS) $(SOFLAGS) $(OBJS) $(ROOTLIBS) -L$(ALICE_PHYSICS)/lib -lVMC -lMinuit -lEG -lGeom -o$(PROGRAM).so
 	@echo "linking done"
 
 dict_$(PROGRAM).cpp: $(HDRS)

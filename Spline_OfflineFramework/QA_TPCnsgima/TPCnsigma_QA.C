@@ -20,8 +20,8 @@ void TPCnsigma_QA(){
 TFile *file = new TFile("TPCresidualPID.root");
 THnSparseF* hist = (THnSparseF*) file->Get("fHistPidQA");
 
-hist->GetAxis(6)->SetRangeUser(0000,1000);
-///hist->GetAxis(7)->SetRangeUser(0.0,0.3);
+hist->GetAxis(6)->SetRangeUser(00000,25000);
+hist->GetAxis(7)->SetRangeUser(0,1);
 
 Double_t nTPCsigma_minus = -3;
 Double_t nTPCsigma_plus = 3;

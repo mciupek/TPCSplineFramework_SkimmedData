@@ -87,8 +87,10 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t p;
   Double_t oneoverpt;
   Double_t rawtpcsignal;
+  Double_t rawtpcsignal_leg;
   Double_t itssignal;
   Double_t pileupcor_tpcsignal;
+  Double_t pileupcor_tpcsignal_leg;
   TVectorD tofNsig= TVectorD(9);
   TVectorD tpcNsig= TVectorD(9);
   //TVectorD tpcnsigma(nSpecies);
@@ -99,6 +101,8 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t centrality;
   Double_t PDGcode;
   Double_t isV0;
+  Double_t V0Pull;
+  Double_t V0PullEff;
   Double_t isPileUp;
   Double_t dEdxExpected_SatLund_woDeut;
   Double_t dEdxExpected_SatLund_wDeut;
@@ -135,6 +139,21 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t its_ncls;
   Double_t tpc_chi2;
   Double_t its_chi2;
+  Double_t dca_r;
+  Double_t dca_tpc_r;
+  Double_t dca_z;
+  Double_t dca_tpc_z;
+  Double_t fITSClusterMap;
+  Double_t fITSClusterMap_leg;
+  Double_t fAlpha;
+  Double_t K0PullEff;
+  Double_t EPullEff;
+  Double_t LPullEff;
+  Double_t ALPullEff;
+  Double_t fSigned1Pt;
+  Double_t selectionPtMask;
+  Double_t selectionPIDMask;
+
 
   //TVectorF b(6);
 

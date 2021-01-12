@@ -114,8 +114,10 @@ for (Int_t i = 0; i<7; i++){
   fTree2->Branch("p", &p);
   fTree2->Branch("oneoverpt",&oneoverpt);
   fTree2->Branch("rawtpcsignal",&rawtpcsignal);
+  fTree2->Branch("rawtpcsignal_leg",&rawtpcsignal_leg);
   fTree2->Branch("itssignal",&itssignal);
   fTree2->Branch("pileupcor_tpcsignal",&pileupcor_tpcsignal);
+  fTree2->Branch("pileupcor_tpcsignal_leg",&pileupcor_tpcsignal_leg);
   fTree2->Branch("BG", &BG);
   fTree2->Branch("eta",&eta);
   fTree2->Branch("tgl",&tgl);
@@ -123,6 +125,12 @@ for (Int_t i = 0; i<7; i++){
   fTree2->Branch("centrality", &centrality);
   fTree2->Branch("PDGcode", &PDGcode);
   fTree2->Branch("isV0",&isV0);
+  fTree2->Branch("V0Pull",&V0Pull);
+  fTree2->Branch("V0PullEff",&V0PullEff);
+  fTree2->Branch("K0PullEff",&K0PullEff);
+  fTree2->Branch("LPullEff",&LPullEff);
+  fTree2->Branch("ALPullEff",&ALPullEff);
+  fTree2->Branch("EPullEff",&EPullEff);
   fTree2->Branch("isPileUp",&isPileUp);
   fTree2->Branch("dEdxExpected_SatLund_woDeut",&dEdxExpected_SatLund_woDeut);
   fTree2->Branch("dEdxExpected_SatLund_wDeut",&dEdxExpected_SatLund_wDeut);
@@ -161,6 +169,17 @@ for (Int_t i = 0; i<7; i++){
   fTree2->Branch("its_ncls", &its_ncls);
   fTree2->Branch("tpc_chi2", &tpc_chi2);
   fTree2->Branch("its_chi2", &its_chi2);
+  fTree2->Branch("dca_r",&dca_r);
+  fTree2->Branch("dca_z",&dca_z);
+  fTree2->Branch("dca_tpc_r",&dca_tpc_r);
+  fTree2->Branch("dca_tpc_z",&dca_tpc_z);
+  fTree2->Branch("fITSClusterMap",&fITSClusterMap);
+  fTree2->Branch("fITSClusterMap_leg",&fITSClusterMap_leg);
+  fTree2->Branch("fAlpha",&fAlpha);
+  fTree2->Branch("fSigned1Pt",&fSigned1Pt);
+  fTree2->Branch("selectionPtMask",&selectionPtMask);
+  fTree2->Branch("selectionPIDMask",&selectionPIDMask);
+
 
 
   //  THnSparseF* dEdx_THnF = new THnSparseF(name.Data(), title.Data(), kNdim, binsHistQA, xminHistQA, xmaxHistQA);
@@ -228,8 +247,8 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
       Double_t tofNsigma=-9999;
       Double_t tpcNsigma=-9999;
       Double_t tpccluster=-999;
-      Double_t dca_r = -999;
-      Double_t dca_z = -999;
+      //Double_t dca_r = -999;
+      //Double_t dca_z = -999;
       Double_t nCrossRows = -999;
       tgl = -999;
       tofnsigma = -999;
@@ -258,6 +277,9 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
       SignalNcr1 = -999;
       SignalNcr2 = -999;
       SignalNcr3 = -999;
+      fSigned1Pt = -999;
+      selectionPtMask = -999;
+      selectionPIDMask = -999;
 
       const Int_t numCases = 8;
       Double_t tpcQA[numCases];
@@ -282,23 +304,35 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
   tofnsigma = -999;
   tpcnsigma = -999;
 
-	if(V0ana->K0Like>0.0&&(V0ana->cleanK0==1))
+	if(V0ana->K0Like>0.7&&(V0ana->cleanK0==1))
 	  {
-	    isTreeK0=true;   
+	    isTreeK0=true;
+      V0Pull = V0ana->K0Pull;
+      V0PullEff = V0ana->K0PullEff;
+      isV0= 1.;
 	  }
-	if(V0ana->ELike>0.0&&(V0ana->cleanGamma==1))
+	if(V0ana->ELike>0.7&&(V0ana->cleanGamma==1))
 	  {
-	    isTreeGamma=true;   
-	  }
+	    isTreeGamma=true;
+      V0Pull = V0ana->EPull;
+      V0PullEff = V0ana->EPullEff;   
+	    isV0= 2.;
+    }
 
-	if(V0ana->LLike>0.0&&(V0ana->cleanLambda==1))
+	if(V0ana->LLike>0.7&&(V0ana->cleanLambda==1))
 	  {
 	    isTreeLambda=true;   
+      V0Pull = V0ana->LPull;
+      V0PullEff = V0ana->LPullEff;
+      isV0=3;
 	  }
 
-	if(V0ana->ALLike>0.0&&(V0ana->cleanALambda==1))
+	if(V0ana->ALLike>0.7&&(V0ana->cleanALambda==1))
 	  {
-	    isTreeALambda=true;   
+	    isTreeALambda=true;
+      V0Pull = V0ana->ALPull;
+      V0PullEff = V0ana->ALPullEff;   
+      isV0=4;
 	  }
 
 	if(!(isTreeK0||isTreeGamma||isTreeLambda||isTreeALambda)) continue;
@@ -310,17 +344,20 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
   p = V0ana->track0P;
   oneoverpt = 1/V0ana->track0Pt;
   rawtpcsignal = V0ana->track0_fTPCsignal;
+  rawtpcsignal_leg = V0ana->track1_fTPCsignal;
   itssignal = V0ana->track0_fITSsignal;
   pileupcor_tpcsignal = V0ana->track0_fTPCsignal - V0ana->track0GetPileupValue;
+  pileupcor_tpcsignal_leg = V0ana->track1_fTPCsignal - V0ana->track1GetPileupValue;
   eta = V0ana->track0Eta;
   tgl = V0ana->track0Tgl;
   multiplicty = V0ana->tpcTrackBeforeClean;
   centrality = V0ana->centV0;
-  isV0 = 1.;
+  //isV0 = 1.;
   isPileUp = V0ana->isPileUp;
   dca_r = V0ana->dca0_r;
 	dca_z = V0ana->dca0_z;
   nCrossRows = V0ana->nCrossRows0;
+  fSigned1Pt = V0ana->fSigned1Pt0;
   
   shiftM = V0ana->shiftM;
   nPileUpPrim= V0ana->nPileUpPrim;
@@ -354,6 +391,19 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
   its_ncls = V0ana->its_cls0;
   tpc_chi2 = V0ana->tpc_chi2_0;
   its_chi2 = V0ana->its_chi2_0;
+  dca_r = V0ana->dca0_r;
+  dca_z = V0ana->dca0_z;
+  dca_tpc_r = V0ana->dca0_tpcr;
+  dca_tpc_z = V0ana->dca0_tpcz;
+  fITSClusterMap = V0ana->fITSClusterMap0;
+  fITSClusterMap_leg = V0ana->fITSClusterMap1;
+  fAlpha = V0ana->fAlpha0;
+  K0PullEff = V0ana->K0PullEff;
+  EPullEff = V0ana->EPullEff;
+  LPullEff = V0ana->LPullEff;
+  ALPullEff = V0ana->ALPullEff;
+
+
   
   tpcQA[0]=V0ana->track0tpcNsigma_el;
 	tofQA[0]=V0ana->track0tofNsigmaElectron;
@@ -404,17 +454,20 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
   p = V0ana->track1P;
   oneoverpt = 1/V0ana->track1Pt;
   rawtpcsignal = V0ana->track1_fTPCsignal;
+  rawtpcsignal_leg = V0ana->track0_fTPCsignal;
   itssignal = V0ana->track1_fITSsignal;
   pileupcor_tpcsignal = V0ana->track1_fTPCsignal - V0ana->track1GetPileupValue;
+  pileupcor_tpcsignal_leg = V0ana->track0_fTPCsignal - V0ana->track0GetPileupValue;
   eta = V0ana->track1Eta;
   tgl = V0ana->track1Tgl;
   multiplicty = V0ana->tpcTrackBeforeClean;
   centrality = V0ana->centV0;
-  isV0 = 1.;
+  //isV0 = 1.;
   isPileUp = V0ana->isPileUp;
   dca_r = V0ana->dca1_r;
   dca_z = V0ana->dca1_z;
   nCrossRows = V0ana->nCrossRows1;
+  fSigned1Pt = V0ana->fSigned1Pt1;
 
   shiftM = V0ana->shiftM;
   nPileUpPrim= V0ana->nPileUpPrim;
@@ -449,6 +502,17 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
   its_ncls = V0ana->its_cls1;
   tpc_chi2 = V0ana->tpc_chi2_1;
   its_chi2 = V0ana->its_chi2_1;
+  dca_r = V0ana->dca1_r;
+  dca_z = V0ana->dca1_z;
+  dca_tpc_r = V0ana->dca1_tpcr;
+  dca_tpc_z = V0ana->dca1_tpcz;
+  fITSClusterMap = V0ana->fITSClusterMap1;
+  fITSClusterMap_leg = V0ana->fITSClusterMap0;
+  fAlpha = V0ana->fAlpha1;
+  K0PullEff = V0ana->K0PullEff;
+  EPullEff = V0ana->EPullEff;
+  LPullEff = V0ana->LPullEff;
+  ALPullEff = V0ana->ALPullEff;
 
   tpcQA[0]=V0ana->track1tpcNsigma_el;
 	tofQA[0]=V0ana->track1tofNsigmaElectron;
@@ -495,8 +559,8 @@ for(Int_t iV0=0;iV0<Tree2->GetEntries();iV0++)
 	
 
       if (tpccluster < 50) continue;
-      if(TMath::Abs(dca_r) > 3.0) continue;
-      if(TMath::Abs(dca_z) > 3.0) continue;
+      //if(TMath::Abs(dca_r) > 3.0) continue;
+      //if(TMath::Abs(dca_z) > 3.0) continue;
       if(nCrossRows < 70) continue;
 	
 	if (isTreeK0) {
@@ -666,9 +730,12 @@ void AliSkimmedDataAnalysisMaker::TreePrimary_BBFitAnalysis(TString filename_tra
   BG = -999;
   tofnsigma = -999;
   tpcnsigma = -999;
-  Double_t dca_r = -999;
-	Double_t dca_z = -999;
+  //Double_t dca_r = -999;
+	//Double_t dca_z = -999;
   Double_t nCrossRows = -999;
+  fSigned1Pt = -999;
+  selectionPtMask = -999;
+  selectionPIDMask = -999;
 
       shiftM = -999;
       nPileUpPrim= -999;
@@ -698,17 +765,23 @@ void AliSkimmedDataAnalysisMaker::TreePrimary_BBFitAnalysis(TString filename_tra
       its_ncls = -999;
       tpc_chi2 = -999;
       its_chi2 = -999;
+      V0Pull = -999;
+      V0PullEff = -999;
+      K0PullEff = -999;
+      EPullEff = -999;
+      LPullEff = -999;
+      ALPullEff = -999;
 
       tpccluster = TrackAna->esdTrack_fTPCsignalN;
     eta = TrackAna->trackEta;
-    dca_r = TrackAna->dca_r;
-    dca_z = TrackAna->dca_z;
+    //dca_r = TrackAna->dca_r;
+    //dca_z = TrackAna->dca_z;
     nCrossRows = TrackAna->nCrossRows;
 
   if (tpccluster < 50) continue; 
   if(TMath::Abs(eta) > 0.9) continue;                                                                                                                                                                   
-  if(TMath::Abs(dca_r) > 3.0) continue;
-  if(TMath::Abs(dca_z) > 3.0) continue;
+  //if(TMath::Abs(dca_r) > 3.0) continue;
+  //if(TMath::Abs(dca_z) > 3.0) continue;
   if(nCrossRows < 70) continue;
 
   p = TrackAna->trackP;
@@ -720,6 +793,9 @@ void AliSkimmedDataAnalysisMaker::TreePrimary_BBFitAnalysis(TString filename_tra
   centrality = TrackAna->centV0;
   isPileUp = TrackAna->isPileUp;
   tgl = TrackAna->tgl;
+  fSigned1Pt = TrackAna->fSigned1Pt;
+  selectionPtMask = TrackAna->selectionPtMask;
+  selectionPIDMask = TrackAna->selectionPIDMask;
 
   shiftM = TrackAna->shiftM;
   nPileUpPrim= TrackAna->nPileUpPrim;
@@ -753,6 +829,12 @@ void AliSkimmedDataAnalysisMaker::TreePrimary_BBFitAnalysis(TString filename_tra
   its_ncls = TrackAna->its_cls;
   tpc_chi2 = TrackAna->tpc_chi2;
   its_chi2 = TrackAna->its_chi2;
+  dca_r = TrackAna->dca_r;
+  dca_z = TrackAna->dca_z;
+  dca_tpc_r = TrackAna->dca_tpcr;
+  dca_tpc_z = TrackAna->dca_tpcz;
+  fITSClusterMap = TrackAna->fITSClusterMap;
+  fAlpha = TrackAna->fAlpha;
 
   tpcQA[0]=TrackAna->track_tpcNsigma_el;
   tofQA[0]=TrackAna->tracktofNsigmaElectron;

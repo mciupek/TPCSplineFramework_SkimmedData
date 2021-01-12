@@ -7,7 +7,7 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
   AliDrawStyle::SetDefaults();
   AliDrawStyle::ApplyStyle("figTemplate");
   gStyle->SetOptTitle(1);
-  SetUpNewSpline(296623);     //LHC16q: 266081
+  SetUpNewSpline(296623);     
   InitTree(1,1,296623);
 //  LoadFits();
   cacheCleanV0();
@@ -60,6 +60,7 @@ gSystem->AddIncludePath("-I$ALICE_PHYSICS/include");
 #include "AliPIDtools.h"
 #include "AliTPCPIDResponse.h"
 #include "AliPIDResponse.h"
+#include "AliTimeRangeCut.h"
 
 TTree * tree =0;
 TTree * treeV0=0;
@@ -83,7 +84,7 @@ void fitdEdxCorrectionFiltered(){
 
 
 void enablePileUpCorrection(){
-  AliPIDtools::GetTPCPID(pidHash).SetPileupCorrectionObject(AliPIDtools::GetTPCPID(pidHash).GetPileupCorrectionFromFile("/lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/PWGPP-538/new/alice/data/2018/LHC18q/pass3/AODFilterTrees01/dEdxFitLight.root"));
+  AliPIDtools::GetTPCPID(pidHash).SetPileupCorrectionObject(AliPIDtools::GetTPCPID(pidHash).GetPileupCorrectionFromFile("/lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/PWGPP-538/new/alice/data/2018/LHC18r/pass3/AODFilterTrees01/dEdxFitLight.root"));
 }
 
 void SetUpNewSpline(Int_t run){
@@ -102,11 +103,11 @@ void SetUpNewSpline(Int_t run){
   AliPIDResponse *fPIDResponse2 = new AliPIDResponse;
 
   fPIDResponse->SetUseTPCMultiplicityCorrection(false);
-  fPIDResponse->SetUseTPCEtaCorrection(true);
-  fPIDResponse->SetUseTPCPileupCorrection(true);
+  fPIDResponse->SetUseTPCEtaCorrection(false);
+  fPIDResponse->SetUseTPCPileupCorrection(false);
   
-  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/nyx/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCPIDResponseOADB_2020_10_13_18q_pass3_It7.root");
-  fPIDResponse->SetCustomTPCetaMaps("/lustre/nyx/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCetaMaps_2020_10_13_18q_pass3_It7.root");
+//  fPIDResponse->SetCustomTPCpidResponseOADBFile("/lustre/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCPIDResponseOADB_2020_10_13_18q_pass3_It7.root");
+//  fPIDResponse->SetCustomTPCetaMaps("/lustre/alice/users/mciupek/TPCSpline/Splines/LHC18q/withpileupCorr/TPCetaMaps_2020_10_13_18q_pass3_It7.root");
   fPIDResponse->SetOADBPath("$ALICE_PHYSICS/OADB/");
   fPIDResponse->InitialiseEvent(&ev,passNumber, recoPass, run);
 
@@ -250,6 +251,10 @@ void makeAliasesTracks(TTree *tree){
 
   tree->SetAlias("dca_r","esdTrack.fD");
   tree->SetAlias("dca_z","esdTrack.fZ");
+  tree->SetAlias("dca_tpcr","esdTrack.fdTPC");
+  tree->SetAlias("dca_tpcz","esdTrack.fzTPC");
+  tree->SetAlias("fAlpha","esdTrack.fAlpha");
+  tree->SetAlias("fITSClusterMap","esdTrack.fITSClusterMap");
   tree->SetAlias("nCrossRows","(esdTrack.GetTPCClusterInfo(3,1)+0)");
 
 
@@ -464,6 +469,15 @@ void makeAliasesV0(){
   treeV0->SetAlias("nCrossRows0","(track0.GetTPCClusterInfo(3,1)+0)");
   treeV0->SetAlias("dca1_r","track1.fD");                                                                                                                                                                    treeV0->SetAlias("dca1_z","track1.fZ");
   treeV0->SetAlias("nCrossRows1","(track1.GetTPCClusterInfo(3,1)+0)");
+
+  treeV0->SetAlias("dca0_tpcr","track0.fdTPC");
+  treeV0->SetAlias("dca0_tpcz","track0.fzTPC");
+  treeV0->SetAlias("fAlpha0","track0.fAlpha");
+  treeV0->SetAlias("fITSClusterMap0","track0.fITSClusterMap");
+  treeV0->SetAlias("dca1_tpcr","track1.fdTPC");
+  treeV0->SetAlias("dca1_tpcz","track1.fzTPC");
+  treeV0->SetAlias("fAlpha1","track1.fAlpha");
+  treeV0->SetAlias("fITSClusterMap1","track1.fITSClusterMap");
 
 
   // Aliases for the QA!
@@ -687,7 +701,9 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
   treeV0->SetAlias("tpc_chi2_1","track1.fTPCchi2");
   treeV0->SetAlias("its_chi2_0","track0.fITSchi2");
   treeV0->SetAlias("its_chi2_1","track1.fITSchi2");
-  
+  treeV0->SetAlias("fSigned1Pt0","track0.fIp.fP[4]");
+  treeV0->SetAlias("fSigned1Pt1","track1.fIp.fP[4]");
+
 
   gROOT->cd();
   treeV0->RemoveFriend(treeEvent);
@@ -703,9 +719,11 @@ void cacheCleanV0(Int_t entries=-1, Int_t firstEntry=0, Int_t chunkSize=100000){
     //"run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
     "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
     "v0.fPointAngle:kf.fChi2:K0Like:ELike:LLike:ALLike:cleanK0:cleanGamma:cleanLambda:cleanALambda:track0status:track1status:track0_hasTOF:track1_hasTOF:"
+    "K0Pull:LPull:ALPull:EPull:K0PullEff:LPullEff:ALPullEff:EPullEff:"
     "track0.fTPCsignal:track1.fTPCsignal:track0.fTPCsignalN:track1.fTPCsignalN:type:track0.fITSsignal:track1.fITSsignal:"
     "track0P:track0Pt:track0Eta:track0Phi:track0Px:track0Py:track0Pz:track0Tgl:dca0_r:dca0_z:nCrossRows0:tpc_cls0:its_cls0:tpc_chi2_0:its_chi2_0:"
     "track1P:track1Pt:track1Eta:track1Phi:track1Px:track1Py:track1Pz:track1Tgl:dca1_r:dca1_z:nCrossRows1:tpc_cls1:its_cls1:tpc_chi2_1:its_chi2_1:"
+    "dca0_tpcr:dca0_tpcz:fAlpha0:fITSClusterMap0:fSigned1Pt0:dca1_tpcr:dca1_tpcz:fAlpha1:fITSClusterMap1:fSigned1Pt1:"
     "track0tofNsigmaElectron:track0tofNsigmaPion:track0tofNsigmaKaon:track0tofNsigmaProton:"
     "track1tofNsigmaElectron:track1tofNsigmaPion:track1tofNsigmaKaon:track1tofNsigmaProton:"
     "track0tpcNsigma_el:track0tpcNsigma_pi:track0tpcNsigma_ka:track0tpcNsigma_pro:"
@@ -771,7 +789,7 @@ void cacheEventFlat(){
                           "multV0A:multV0C:multT0A:multT0C:multITSA:multITSC:"
                           "multV0A0:multV0C0:multV0A1:multV0C1:multITSA0:multITSC0:multITSA1:multITSC1:"
                           "centV0:centITS0:centITS1";                    /// to add QA variables
-  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","");
+  AliTreePlayer::MakeCacheTree(treeEvent,cacheVariables.Data(),"EventTree.root","EventFlat","isMinBias==1");
    ::Info("cacheEventFlat","END");
    timer.Print();
 }
@@ -807,7 +825,7 @@ void cacheCleanTrack(){
   tree->SetAlias("its_cls","esdTrack.fITSncls");
   tree->SetAlias("tpc_chi2","esdTrack.fTPCchi2");
   tree->SetAlias("its_chi2","esdTrack.fITSchi2");
-
+  tree->SetAlias("fSigned1Pt","esdTrack.fIp.fP[4]");
   TString cacheVariables=""
                           "fTPCsignal:esdTrack.fITSsignal:esdTrack.fTRDsignal:esdTrack.fTPCsignalN:trackP:trackPt:tgl:trackEta:tpc_cls:its_cls:tpc_chi2:its_chi2:ntracks:trackstatus:"
                           "track_tpcNsigma_el:track_tpcNsigma_pi:track_tpcNsigma_ka:track_tpcNsigma_pro:track_tpcNsigma_deut:track_tpcNsigma_tri:track_tpcNsigma_He3:"
@@ -817,12 +835,13 @@ void cacheCleanTrack(){
 		                      "track_CorrectedTPCSignalV0_el:track_CorrectedTPCSignalV0_pi:track_CorrectedTPCSignalV0_ka:track_CorrectedTPCSignalV0_pro:track_CorrectedTPCSignalV0_deut:"
                           "track_CorrectedTPCSignalV0_tri:track_CorrectedTPCSignalV0_He3:"
                           "track_GetPileupValue:dca_r:dca_z:nCrossRows:"
+                          "dca_tpcr:dca_tpcz:fAlpha:fITSClusterMap:fSigned1Pt:"
 			                    "run:intrate:timeStampS:timestamp:bField:triggerMask:"     /// run properties
                           //"gid:shiftM:nPileUpPrim:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
                           "gid:shiftA:shiftC:shiftM:nPileUpPrim:nPileUpSum:primMult:tpcClusterMult:pileUpOK:" /// pileup event properties
                           "multSSD:multSDD:multSPD:multV0:multT0:spdvz:itsTracklets:tpcMult:tpcTrackBeforeClean:" /// raw multiplicities
                           "centV0:centITS0:centITS1:"
-			                    "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias:isPileUp:"
+			                    "TPCRefit:ITSRefit:Nucleitrigger_OFF:track_hasTOF:isMinBias:isPileUp:selectionPtMask:selectionPIDMask:"
                           "logSignalTot0:logSignalTot1:logSignalTot2:logSignalTot3:"
                           "logSignalMax0:logSignalMax1:logSignalMax2:logSignalMax3:"
                           "signalNcl0:signalNcl1:signalNcl2:signalNcl3:"

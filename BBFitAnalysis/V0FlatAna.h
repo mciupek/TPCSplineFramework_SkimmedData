@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Nov 25 18:29:17 2020 by ROOT version 5.34/30
+// Wed Dec 16 20:34:32 2020 by ROOT version 5.34/30
 // from TTree V0Flat/V0Flat
-// found on file: /lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/V0tree.root
+// found on file: ../code_FlatTreeCreation/V0tree.root
 //////////////////////////////////////////////////////////
 
 #ifndef V0FlatAna_h
@@ -45,6 +45,14 @@ public :
    Double_t        track1status;
    Double_t        track0_hasTOF;
    Double_t        track1_hasTOF;
+   Double_t        K0Pull;
+   Double_t        LPull;
+   Double_t        ALPull;
+   Double_t        EPull;
+   Double_t        K0PullEff;
+   Double_t        LPullEff;
+   Double_t        ALPullEff;
+   Double_t        EPullEff;
    Double_t        track0_fTPCsignal;
    Double_t        track1_fTPCsignal;
    Double_t        track0_fTPCsignalN;
@@ -82,6 +90,16 @@ public :
    Double_t        its_cls1;
    Double_t        tpc_chi2_1;
    Double_t        its_chi2_1;
+   Double_t        dca0_tpcr;
+   Double_t        dca0_tpcz;
+   Double_t        fAlpha0;
+   Double_t        fITSClusterMap0;
+   Double_t        fSigned1Pt0;
+   Double_t        dca1_tpcr;
+   Double_t        dca1_tpcz;
+   Double_t        fAlpha1;
+   Double_t        fITSClusterMap1;
+   Double_t        fSigned1Pt1;
    Double_t        track0tofNsigmaElectron;
    Double_t        track0tofNsigmaPion;
    Double_t        track0tofNsigmaKaon;
@@ -98,7 +116,6 @@ public :
    Double_t        track1tpcNsigma_pi;
    Double_t        track1tpcNsigma_ka;
    Double_t        track1tpcNsigma_pro;
-   /*
    Double_t        track0ExpectedTPCSignalV0_el;
    Double_t        track0ExpectedTPCSignalV0_pi;
    Double_t        track0ExpectedTPCSignalV0_ka;
@@ -107,7 +124,6 @@ public :
    Double_t        track1ExpectedTPCSignalV0_pi;
    Double_t        track1ExpectedTPCSignalV0_ka;
    Double_t        track1ExpectedTPCSignalV0_pro;
-   */
    Double_t        track0CorrectedTPCSignalV0_el;
    Double_t        track0CorrectedTPCSignalV0_pi;
    Double_t        track0CorrectedTPCSignalV0_ka;
@@ -185,6 +201,14 @@ public :
    TBranch        *b_track1status;   //!
    TBranch        *b_track0_hasTOF;   //!
    TBranch        *b_track1_hasTOF;   //!
+   TBranch        *b_K0Pull;   //!
+   TBranch        *b_LPull;   //!
+   TBranch        *b_ALPull;   //!
+   TBranch        *b_EPull;   //!
+   TBranch        *b_K0PullEff;   //!
+   TBranch        *b_LPullEff;   //!
+   TBranch        *b_ALPullEff;   //!
+   TBranch        *b_EPullEff;   //!
    TBranch        *b_track0_fTPCsignal;   //!
    TBranch        *b_track1_fTPCsignal;   //!
    TBranch        *b_track0_fTPCsignalN;   //!
@@ -222,6 +246,16 @@ public :
    TBranch        *b_its_cls1;   //!
    TBranch        *b_tpc_chi2_1;   //!
    TBranch        *b_its_chi2_1;   //!
+   TBranch        *b_dca0_tpcr;   //!
+   TBranch        *b_dca0_tpcz;   //!
+   TBranch        *b_fAlpha0;   //!
+   TBranch        *b_fITSClusterMap0;   //!
+   TBranch        *b_fSigned1Pt0;   //!
+   TBranch        *b_dca1_tpcr;   //!
+   TBranch        *b_dca1_tpcz;   //!
+   TBranch        *b_fAlpha1;   //!
+   TBranch        *b_fITSClusterMap1;   //!
+   TBranch        *b_fSigned1Pt1;   //!
    TBranch        *b_track0tofNsigmaElectron;   //!
    TBranch        *b_track0tofNsigmaPion;   //!
    TBranch        *b_track0tofNsigmaKaon;   //!
@@ -238,7 +272,6 @@ public :
    TBranch        *b_track1tpcNsigma_pi;   //!
    TBranch        *b_track1tpcNsigma_ka;   //!
    TBranch        *b_track1tpcNsigma_pro;   //!
-   /*
    TBranch        *b_track0ExpectedTPCSignalV0_el;   //!
    TBranch        *b_track0ExpectedTPCSignalV0_pi;   //!
    TBranch        *b_track0ExpectedTPCSignalV0_ka;   //!
@@ -247,7 +280,6 @@ public :
    TBranch        *b_track1ExpectedTPCSignalV0_pi;   //!
    TBranch        *b_track1ExpectedTPCSignalV0_ka;   //!
    TBranch        *b_track1ExpectedTPCSignalV0_pro;   //!
-   */
    TBranch        *b_track0CorrectedTPCSignalV0_el;   //!
    TBranch        *b_track0CorrectedTPCSignalV0_pi;   //!
    TBranch        *b_track0CorrectedTPCSignalV0_ka;   //!
@@ -320,9 +352,9 @@ V0FlatAna::V0FlatAna(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/V0tree.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../code_FlatTreeCreation/V0tree.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/V0tree.root");
+         f = new TFile("../code_FlatTreeCreation/V0tree.root");
       }
       f->GetObject("V0Flat",tree);
 
@@ -394,6 +426,14 @@ void V0FlatAna::Init(TTree *tree)
    fChain->SetBranchAddress("track1status", &track1status, &b_track1status);
    fChain->SetBranchAddress("track0_hasTOF", &track0_hasTOF, &b_track0_hasTOF);
    fChain->SetBranchAddress("track1_hasTOF", &track1_hasTOF, &b_track1_hasTOF);
+   fChain->SetBranchAddress("K0Pull", &K0Pull, &b_K0Pull);
+   fChain->SetBranchAddress("LPull", &LPull, &b_LPull);
+   fChain->SetBranchAddress("ALPull", &ALPull, &b_ALPull);
+   fChain->SetBranchAddress("EPull", &EPull, &b_EPull);
+   fChain->SetBranchAddress("K0PullEff", &K0PullEff, &b_K0PullEff);
+   fChain->SetBranchAddress("LPullEff", &LPullEff, &b_LPullEff);
+   fChain->SetBranchAddress("ALPullEff", &ALPullEff, &b_ALPullEff);
+   fChain->SetBranchAddress("EPullEff", &EPullEff, &b_EPullEff);
    fChain->SetBranchAddress("track0.fTPCsignal", &track0_fTPCsignal, &b_track0_fTPCsignal);
    fChain->SetBranchAddress("track1.fTPCsignal", &track1_fTPCsignal, &b_track1_fTPCsignal);
    fChain->SetBranchAddress("track0.fTPCsignalN", &track0_fTPCsignalN, &b_track0_fTPCsignalN);
@@ -431,6 +471,16 @@ void V0FlatAna::Init(TTree *tree)
    fChain->SetBranchAddress("its_cls1", &its_cls1, &b_its_cls1);
    fChain->SetBranchAddress("tpc_chi2_1", &tpc_chi2_1, &b_tpc_chi2_1);
    fChain->SetBranchAddress("its_chi2_1", &its_chi2_1, &b_its_chi2_1);
+   fChain->SetBranchAddress("dca0_tpcr", &dca0_tpcr, &b_dca0_tpcr);
+   fChain->SetBranchAddress("dca0_tpcz", &dca0_tpcz, &b_dca0_tpcz);
+   fChain->SetBranchAddress("fAlpha0", &fAlpha0, &b_fAlpha0);
+   fChain->SetBranchAddress("fITSClusterMap0", &fITSClusterMap0, &b_fITSClusterMap0);
+   fChain->SetBranchAddress("fSigned1Pt0", &fSigned1Pt0, &b_fSigned1Pt0);
+   fChain->SetBranchAddress("dca1_tpcr", &dca1_tpcr, &b_dca1_tpcr);
+   fChain->SetBranchAddress("dca1_tpcz", &dca1_tpcz, &b_dca1_tpcz);
+   fChain->SetBranchAddress("fAlpha1", &fAlpha1, &b_fAlpha1);
+   fChain->SetBranchAddress("fITSClusterMap1", &fITSClusterMap1, &b_fITSClusterMap1);
+   fChain->SetBranchAddress("fSigned1Pt1", &fSigned1Pt1, &b_fSigned1Pt1);
    fChain->SetBranchAddress("track0tofNsigmaElectron", &track0tofNsigmaElectron, &b_track0tofNsigmaElectron);
    fChain->SetBranchAddress("track0tofNsigmaPion", &track0tofNsigmaPion, &b_track0tofNsigmaPion);
    fChain->SetBranchAddress("track0tofNsigmaKaon", &track0tofNsigmaKaon, &b_track0tofNsigmaKaon);
@@ -447,14 +497,14 @@ void V0FlatAna::Init(TTree *tree)
    fChain->SetBranchAddress("track1tpcNsigma_pi", &track1tpcNsigma_pi, &b_track1tpcNsigma_pi);
    fChain->SetBranchAddress("track1tpcNsigma_ka", &track1tpcNsigma_ka, &b_track1tpcNsigma_ka);
    fChain->SetBranchAddress("track1tpcNsigma_pro", &track1tpcNsigma_pro, &b_track1tpcNsigma_pro);
-   //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_el", &track0ExpectedTPCSignalV0_el, &b_track0ExpectedTPCSignalV0_el);
-   //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pi", &track0ExpectedTPCSignalV0_pi, &b_track0ExpectedTPCSignalV0_pi);
-   //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_ka", &track0ExpectedTPCSignalV0_ka, &b_track0ExpectedTPCSignalV0_ka);
-   //fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pro", &track0ExpectedTPCSignalV0_pro, &b_track0ExpectedTPCSignalV0_pro);
-   //fChain->SetBranchAddress("track1ExpectedTPCSignalV0_el", &track1ExpectedTPCSignalV0_el, &b_track1ExpectedTPCSignalV0_el);
-   ///fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pi", &track1ExpectedTPCSignalV0_pi, &b_track1ExpectedTPCSignalV0_pi);
-   //fChain->SetBranchAddress("track1ExpectedTPCSignalV0_ka", &track1ExpectedTPCSignalV0_ka, &b_track1ExpectedTPCSignalV0_ka);
-   //fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pro", &track1ExpectedTPCSignalV0_pro, &b_track1ExpectedTPCSignalV0_pro);
+   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_el", &track0ExpectedTPCSignalV0_el, &b_track0ExpectedTPCSignalV0_el);
+   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pi", &track0ExpectedTPCSignalV0_pi, &b_track0ExpectedTPCSignalV0_pi);
+   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_ka", &track0ExpectedTPCSignalV0_ka, &b_track0ExpectedTPCSignalV0_ka);
+   fChain->SetBranchAddress("track0ExpectedTPCSignalV0_pro", &track0ExpectedTPCSignalV0_pro, &b_track0ExpectedTPCSignalV0_pro);
+   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_el", &track1ExpectedTPCSignalV0_el, &b_track1ExpectedTPCSignalV0_el);
+   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pi", &track1ExpectedTPCSignalV0_pi, &b_track1ExpectedTPCSignalV0_pi);
+   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_ka", &track1ExpectedTPCSignalV0_ka, &b_track1ExpectedTPCSignalV0_ka);
+   fChain->SetBranchAddress("track1ExpectedTPCSignalV0_pro", &track1ExpectedTPCSignalV0_pro, &b_track1ExpectedTPCSignalV0_pro);
    fChain->SetBranchAddress("track0CorrectedTPCSignalV0_el", &track0CorrectedTPCSignalV0_el, &b_track0CorrectedTPCSignalV0_el);
    fChain->SetBranchAddress("track0CorrectedTPCSignalV0_pi", &track0CorrectedTPCSignalV0_pi, &b_track0CorrectedTPCSignalV0_pi);
    fChain->SetBranchAddress("track0CorrectedTPCSignalV0_ka", &track0CorrectedTPCSignalV0_ka, &b_track0CorrectedTPCSignalV0_ka);

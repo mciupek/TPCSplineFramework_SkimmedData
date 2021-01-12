@@ -52,11 +52,14 @@ export useSigmaMultCorrection=kTRUE
 export multtanThetaBin=2
 export multpBin=9
 useNewMultParametrization=kFALSE
+multiplictyEstimator=AliTPCPIDResponse::kNTPCTrackBeforeClean
 if [[ $collsys == PBPB ]];then
   useNewMultParametrization=kTRUE
 fi
 export useNewMultParametrization
-binning=1.1 # was 1.1
+
+multiplictyEstimator=AliTPCPIDResponse::kNTPCTrackBeforeClean
+binning=2.5 # was 1.1
 TOFcut=0.7
 mergeBinThresh=0 # was 0
 V0cut=3

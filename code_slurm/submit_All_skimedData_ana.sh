@@ -5,7 +5,7 @@
 #date            :Fri May  8 12:18:32 EDT 2020
 #version         :1.0
 
-#pass=pass2_CENT_woSDD # pass1, pass2..
+#pass=pass2_FAST # pass1, pass2..
 pass=pass3
 
 MAX_runs=150 #99 for LHC18r, 136 for 18q, user can give a small number for testing 

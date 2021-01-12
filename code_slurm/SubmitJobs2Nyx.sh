@@ -3,7 +3,7 @@
 #SBATCH -J TPCPID_test2
 # Run time limit
 #SBATCH --mem-per-cpu=16000
-#SBATCH --time=08:00:00
+#SBATCH --time=01:00:00
 # Working directory on shared storage
 # Standard and error output in different files
 #SBATCH -o %j_%N.out.log
@@ -60,7 +60,7 @@ echo "Today's date: "$today
 
 echo $run
 echo $nChunks
-singularity shell /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500/alidockSingularityNoInit.sif <<EOF
+singularity shell /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500/alidockSingularity.sif <<EOF
 alienv -w /alicesw/sw enter AliPhysics/latest
 aliroot
 TStopwatch timer;

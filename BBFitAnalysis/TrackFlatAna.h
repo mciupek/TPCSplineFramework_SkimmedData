@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Nov 25 18:06:22 2020 by ROOT version 5.34/30
+// Wed Dec 16 20:33:49 2020 by ROOT version 5.34/30
 // from TTree CleanTrackFlat/CleanTrackFlat
-// found on file: /lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/CleanTrack.root
+// found on file: ../code_FlatTreeCreation/CleanTrack.root
 //////////////////////////////////////////////////////////
 
 #ifndef TrackFlatAna_h
@@ -68,6 +68,11 @@ public :
    Double_t        dca_r;
    Double_t        dca_z;
    Double_t        nCrossRows;
+   Double_t        dca_tpcr;
+   Double_t        dca_tpcz;
+   Double_t        fAlpha;
+   Double_t        fITSClusterMap;
+   Double_t        fSigned1Pt;
    Double_t        run;
    Double_t        intrate;
    Double_t        timeStampS;
@@ -101,6 +106,8 @@ public :
    Double_t        track_hasTOF;
    Double_t        isMinBias;
    Double_t        isPileUp;
+   Double_t        selectionPtMask;
+   Double_t        selectionPIDMask;
    Double_t        logSignalTot0;
    Double_t        logSignalTot1;
    Double_t        logSignalTot2;
@@ -165,6 +172,11 @@ public :
    TBranch        *b_dca_r;   //!
    TBranch        *b_dca_z;   //!
    TBranch        *b_nCrossRows;   //!
+   TBranch        *b_dca_tpcr;   //!
+   TBranch        *b_dca_tpcz;   //!
+   TBranch        *b_fAlpha;   //!
+   TBranch        *b_fITSClusterMap;   //!
+   TBranch        *b_fSigned1Pt;   //!
    TBranch        *b_run;   //!
    TBranch        *b_intrate;   //!
    TBranch        *b_timeStampS;   //!
@@ -198,6 +210,8 @@ public :
    TBranch        *b_track_hasTOF;   //!
    TBranch        *b_isMinBias;   //!
    TBranch        *b_isPileUp;   //!
+   TBranch        *b_selectionPtMask;   //!
+   TBranch        *b_selectionPIDMask;   //!
    TBranch        *b_logSignalTot0;   //!
    TBranch        *b_logSignalTot1;   //!
    TBranch        *b_logSignalTot2;   //!
@@ -234,9 +248,9 @@ TrackFlatAna::TrackFlatAna(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/CleanTrack.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../code_FlatTreeCreation/CleanTrack.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/lustre/nyx/alice/users/mciupek/TPCSpline/SplineCreationFramework/TPCSplineFramework_SkimmedData/code_FlatTreeCreation/CleanTrack.root");
+         f = new TFile("../code_FlatTreeCreation/CleanTrack.root");
       }
       f->GetObject("CleanTrackFlat",tree);
 
@@ -331,6 +345,11 @@ void TrackFlatAna::Init(TTree *tree)
    fChain->SetBranchAddress("dca_r", &dca_r, &b_dca_r);
    fChain->SetBranchAddress("dca_z", &dca_z, &b_dca_z);
    fChain->SetBranchAddress("nCrossRows", &nCrossRows, &b_nCrossRows);
+   fChain->SetBranchAddress("dca_tpcr", &dca_tpcr, &b_dca_tpcr);
+   fChain->SetBranchAddress("dca_tpcz", &dca_tpcz, &b_dca_tpcz);
+   fChain->SetBranchAddress("fAlpha", &fAlpha, &b_fAlpha);
+   fChain->SetBranchAddress("fITSClusterMap", &fITSClusterMap, &b_fITSClusterMap);
+   fChain->SetBranchAddress("fSigned1Pt", &fSigned1Pt, &b_fSigned1Pt);
    fChain->SetBranchAddress("run", &run, &b_run);
    fChain->SetBranchAddress("intrate", &intrate, &b_intrate);
    fChain->SetBranchAddress("timeStampS", &timeStampS, &b_timeStampS);
@@ -364,6 +383,8 @@ void TrackFlatAna::Init(TTree *tree)
    fChain->SetBranchAddress("track_hasTOF", &track_hasTOF, &b_track_hasTOF);
    fChain->SetBranchAddress("isMinBias", &isMinBias, &b_isMinBias);
    fChain->SetBranchAddress("isPileUp", &isPileUp, &b_isPileUp);
+   fChain->SetBranchAddress("selectionPtMask", &selectionPtMask, &b_selectionPtMask);
+   fChain->SetBranchAddress("selectionPIDMask", &selectionPIDMask, &b_selectionPIDMask);
    fChain->SetBranchAddress("logSignalTot0", &logSignalTot0, &b_logSignalTot0);
    fChain->SetBranchAddress("logSignalTot1", &logSignalTot1, &b_logSignalTot1);
    fChain->SetBranchAddress("logSignalTot2", &logSignalTot2, &b_logSignalTot2);

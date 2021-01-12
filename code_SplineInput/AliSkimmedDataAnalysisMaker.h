@@ -3,8 +3,11 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include "AliTimeRangeMasking.h"
+#include "AliTimeRangeCut.h"
 #include "V0FlatAna.h"
 #include "TrackFlatAna.h"
+
 //#include "AliESDtrack.h"
 class TH2F;
 class TH1F;
@@ -32,7 +35,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   void execute();
   void BinLogAxis(THnSparseF *h, Int_t axisNumber);
   void SetAxisNamesFromTitle(const THnSparseF *h);
-  
+  Bool_t TimeRangeMasking(Double_t gid);
 
  private:
   TFile*  mOutputFile;
@@ -59,6 +62,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
  THnSparseF* fHistPidQA;
  THnSparseF* fHistPid_separation_power;
 
+
 //tree varialbe
   Double_t fPtpc;
   Double_t fDeDx;
@@ -70,7 +74,7 @@ class AliSkimmedDataAnalysisMaker :public TObject {
   Double_t fPIDtype;
   Double_t fMultiplicity;
 
-
+ AliTimeRangeCut *fTimeRangeCut;
 
 
 

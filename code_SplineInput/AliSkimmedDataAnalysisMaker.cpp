@@ -8,7 +8,10 @@
 #include "TH2F.h"
 #include "THnSparse.h"
 //#include "THnSparseF.h"
+//#include "AliTimeRangeMasking.h"
+#include "AliTimeRangeCut.h"
 #include "AliSkimmedDataAnalysisMaker.h"
+
 
 using namespace std;
 
@@ -112,6 +115,8 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
   cout<<"!!!!!!!!!!!!!!!!!read"<<fileName<<endl;
   TFile * infile=new TFile(fileName.Data());
   TTree* Tree=(TTree*) infile->Get("V0Flat");
+    if(Tree==0x0){
+  } else {
   V0FlatAna *V0ana=new V0FlatAna();
   V0ana->Init(Tree);
 
@@ -171,6 +176,10 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
       Double_t itsmult = -999;
       Double_t tpcmultcluster = -999;
       Bool_t isPileUp = kFALSE;
+      Double_t gid = -999;
+      Bool_t badevent_time = kFALSE;
+
+      //AliTimeRangeCut *fTimeRangeCut = new AliTimeRangeCut();
 
 
       Double_t processedTPCsignal[8] = { 1,1,1,1,1,1,1,1 };
@@ -184,7 +193,7 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
 	bool isTreeLambda=false;
 	bool isTreeALambda=false;
 
-	if(V0ana->K0Like>0.7&&(V0ana->cleanK0==1))
+	if(V0ana->K0Like>0.8&&(V0ana->cleanK0==1))
 	  {
 	    isTreeK0=true;   
 	  }
@@ -193,12 +202,12 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
 	    isTreeGamma=true;   
 	  }
 
-	if(V0ana->LLike>0.7&&(V0ana->cleanLambda==1))
+	if(V0ana->LLike>0.8&&(V0ana->cleanLambda==1))
 	  {
 	    isTreeLambda=true;   
 	  }
 
-	if(V0ana->ALLike>0.7&&(V0ana->cleanALambda==1))
+	if(V0ana->ALLike>0.8&&(V0ana->cleanALambda==1))
 	  {
 	    isTreeALambda=true;   
 	  }
@@ -216,9 +225,11 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
       dca_r = V0ana->dca0_r;
 	    dca_z = V0ana->dca0_z;
  	    nCrossRows = V0ana->nCrossRows0;
+      
       itsmult = V0ana->multSSD + V0ana->multSDD;
       tpcmultcluster = V0ana->tpcClusterMult;
       isPileUp = V0ana->isPileUp;
+      //badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(V0ana->gid);
 	    tpcQA[0]=V0ana->track0tpcNsigma_el;
 	    tofQA[0]=V0ana->track0tofNsigmaElectron;
 
@@ -269,6 +280,8 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
             itsmult = V0ana->multSSD + V0ana->multSDD;
             tpcmultcluster = V0ana->tpcClusterMult;
             isPileUp = V0ana->isPileUp;
+            
+//          badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(V0ana->gid);
 
 	    tpcQA[0]=V0ana->track1tpcNsigma_el;
 	    tofQA[0]=V0ana->track1tofNsigmaElectron;
@@ -316,6 +329,7 @@ h_pileupcorrelation_bc->Fill(tpcmultcluster,itsmult);
       if(TMath::Abs(dca_r) > 3.0) continue;
       if(TMath::Abs(dca_z) > 3.0) continue;
       if(nCrossRows < 70) continue;
+      if( badevent_time == kTRUE) continue;
       
       if (enablePileUpCut==kTRUE){
       if(isPileUp==1) continue;
@@ -393,6 +407,7 @@ h_pileupcorrelation_bc->Fill(tpcmultcluster,itsmult);
       
       
     }
+  }
 }
 
 void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName, Bool_t enablePileUpCut){
@@ -434,6 +449,7 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName, Bool_t enable
       Double_t itsmult = -999;
       Double_t tpcmultcluster = -999;
       Bool_t isPileUp = kFALSE;
+      Bool_t badevent_time = kFALSE;
 
       numberOfCluster = TrackAna->fTPCsignalN;
       eta = TrackAna->trackEta;
@@ -443,7 +459,7 @@ void AliSkimmedDataAnalysisMaker::Read_tracktree(TString fileName, Bool_t enable
       tpcmultcluster = TrackAna->tpcClusterMult;  
       nCrossRows = TrackAna->nCrossRows;
       isPileUp = TrackAna->isPileUp;
-
+      //badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(TrackAna->gid);
 
 h_pileupcorrelation_bc->Fill(tpcmultcluster,itsmult);
   if (numberOfCluster < 50) continue; 
@@ -451,6 +467,7 @@ h_pileupcorrelation_bc->Fill(tpcmultcluster,itsmult);
   if(TMath::Abs(dca_r) > 3.0) continue;
   if(TMath::Abs(dca_z) > 3.0) continue;
   if(nCrossRows < 70) continue;
+  if(badevent_time==kTRUE) continue;
       
   if (enablePileUpCut==kTRUE){
     if(isPileUp==1) continue;
@@ -523,6 +540,8 @@ h_pileupcorrelation_bc->Fill(tpcmultcluster,itsmult);
           if (iPart == 3 && precin > 1.0){
              if(TrackAna->Nucleitrigger_OFF == 0) continue;
 }
+          if(iPart == 2 && TrackAna->Nucleitrigger_OFF==0) continue;
+          
           Double_t vecHistQA[8] = {precin, processedTPCsignal[iPart], (Double_t)particleID, (Double_t)iPart, tpcQA[iPart], tofQA[iPart],
                                    (Double_t)nTotESDTracks,TMath::Abs(tanTheta)};
           //cout << vecHistQA[0] << "\t" <<  vecHistQA[1] << "\t" <<  vecHistQA[2] << "\t" <<  vecHistQA[3] << "\t" <<  vecHistQA[4] << "\t" <<  vecHistQA[5] <<  endl;
@@ -556,17 +575,20 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track, B
       Double_t nCrossRows = -999;
       fPtpc = -999;
       Bool_t isPileUp = kFALSE;
+      Bool_t badevent_time = kFALSE;
 
   dca_r = TrackAna->dca_r;
   dca_z = TrackAna->dca_z;
   nCrossRows = TrackAna->nCrossRows;
   isPileUp = TrackAna->isPileUp;
+  //badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(TrackAna->gid);
  
 
   if(TMath::Abs(TrackAna->trackEta) > 0.9) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
+    if(badevent_time == kTRUE) continue;
     
     if (enablePileUpCut==kTRUE){
       if(isPileUp==1) continue;
@@ -636,6 +658,8 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_V0(TString filename_v0 , Bool_t
 
   cout<<"!!!!!!!!!!!!!!!!!read"<<filename_v0<<endl;
   TFile * infile2=new TFile(filename_v0.Data());
+    if(Tree==0x0){
+  } else {
   TTree* Tree2=(TTree*) infile2->Get("V0Flat");
   V0FlatAna *V0ana=new V0FlatAna();
   V0ana->Init(Tree2);
@@ -651,6 +675,7 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_V0(TString filename_v0 , Bool_t
       Double_t itsClusterMult = -999;
       Double_t tpcClusterMult = -999;
       Bool_t   isPileUp =kFALSE;
+      Bool_t badevent_time = kFALSE;
       Double_t dca_r = -999;
       Double_t dca_z = -999;
       Double_t nCrossRows = -999;
@@ -730,6 +755,7 @@ fDeDxExpected = V0ana->track0ExpectedTPCSignalV0_pro;
 fMultiplicity = V0ana->tpcTrackBeforeClean;                                                                                                                                                                
 fTPCsignalNsubthreshold = 200;
 isPileUp = V0ana->isPileUp;
+//badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(V0ana->gid);
 }
 
  else if(track==1){
@@ -749,12 +775,14 @@ fDeDxExpected = V0ana->track1ExpectedTPCSignalV0_pro;
 fMultiplicity = V0ana->tpcTrackBeforeClean;                                                                                                                                                                
 fTPCsignalNsubthreshold = 200;
 isPileUp = V0ana->isPileUp;
+//badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(V0ana->gid);
 }
 
 if(TMath::Abs(etasel) > 0.9) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
+    if(badevent_time == kTRUE) continue;
     
     if (enablePileUpCut==kTRUE){
       if(isPileUp==1) continue;
@@ -789,7 +817,7 @@ fTree->Fill();
 
 } //tree loop
 
-
+  }
 }
 
 void AliSkimmedDataAnalysisMaker::WriteHistogram()
@@ -852,6 +880,48 @@ void AliSkimmedDataAnalysisMaker::SetAxisNamesFromTitle(const THnSparseF *h)
   for (Int_t i=0; i<h->GetNdimensions(); ++i) {
     h->GetAxis(i)->SetName(h->GetAxis(i)->GetTitle());
   }
+}
+
+Bool_t AliSkimmedDataAnalysisMaker::TimeRangeMasking(Double_t gid){
+
+Bool_t badevent = kFALSE;
+
+//LHC18r_pass3   run: 296749
+if(gid==628880853571||gid==684122084392){
+  badevent==kTRUE;
+};
+
+//LHC18r_pass3   run: 296750
+if(gid==687976579337||gid==734727672930){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 296849
+if(gid==483958451208||gid==745436019833){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 296890
+if(gid==498344702183||gid==582200169595){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 297029
+if(gid==436213319386||gid==494857925357){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 297194
+if(gid==508681589448||gid==648815037601){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 297219
+if(gid==678000000000||gid==690000000000){
+  badevent==kTRUE;
+};
+//LHC18r_pass3   run: 297481
+if(gid==495708154506||gid==698497854077){
+  badevent==kTRUE;
+};
+
+return badevent;
+
 }
 
 
