@@ -658,9 +658,9 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_V0(TString filename_v0 , Bool_t
 
   cout<<"!!!!!!!!!!!!!!!!!read"<<filename_v0<<endl;
   TFile * infile2=new TFile(filename_v0.Data());
-    if(Tree==0x0){
-  } else {
   TTree* Tree2=(TTree*) infile2->Get("V0Flat");
+      if(Tree2==0x0){
+  } else {
   V0FlatAna *V0ana=new V0FlatAna();
   V0ana->Init(Tree2);
 
