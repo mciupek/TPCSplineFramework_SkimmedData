@@ -84,7 +84,7 @@ void AliSkimmedDataAnalysisMaker::bookHistogram(Bool_t isPbPb)
   
   bool IsPbPb=isPbPb;
   const Int_t kNdim = 8;
-  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 100, 10,  IsPbPb ? 40 : 40,10};
+  Int_t    binsHistQA[kNdim] = {135, 1980,    4,    8, 80, 10,  IsPbPb ? 40 : 40,1};
   Double_t xminHistQA[kNdim] = {0.1,   20., -0.5, -0.5, -10., -5.,   0.,0};
   Double_t xmaxHistQA[kNdim] = {50., 2000.,  3.5,  7.5,  10.,  5., IsPbPb ? 25000. : 4000.,1};
   fHistPidQA = new THnSparseF(name.Data(), title.Data(), kNdim, binsHistQA, xminHistQA, xmaxHistQA);
@@ -184,6 +184,7 @@ void AliSkimmedDataAnalysisMaker::read(TString fileName, Bool_t enablePileUpCut)
 
       Double_t processedTPCsignal[8] = { 1,1,1,1,1,1,1,1 };
       Double_t deltaTPCsignal[8] = { -111,-111,-111,-111,-111,-111,-111,-111 };
+      
       //V0
       for (Int_t track = 0; track < 2; track++) {
        
@@ -584,11 +585,10 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track, B
   //badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(TrackAna->gid);
  
 
-  if(TMath::Abs(TrackAna->trackEta) > 0.9) continue;
+  if(TMath::Abs(TrackAna->trackEta) > 1.0) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
-    if(badevent_time == kTRUE) continue;
     
     if (enablePileUpCut==kTRUE){
       if(isPileUp==1) continue;
@@ -620,7 +620,7 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track, B
 
 
 
-        if (fPtpc < 4.0 && //TODO was 2.7 // Do not accept non-V0s above this threshold -> High contamination!!!
+        if (fPtpc < 3.0 && //TODO was 2.7 // Do not accept non-V0s above this threshold -> High contamination!!!
             (fDeDx >= 50. / TMath::Power(fPtpc, 1.3))) {// Pattern recognition instead of TPC cut to be ~independent of old TPC expected dEdx
  
          if (fPtpc < 0.6) {
@@ -635,7 +635,7 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_track(TString filename_track, B
             continue; // Reject particle
         }
 
-//if(fPIDtype == -1) continue;
+if(fPIDtype == -1) continue;
 
 
   fMultiplicity = TrackAna->tpcTrackBeforeClean;
@@ -686,12 +686,12 @@ void AliSkimmedDataAnalysisMaker::Filltreeformap_V0(TString filename_v0 , Bool_t
         bool isTreeALambda=false;
         bool isPr = false;
 
-        if(V0ana->LLike>0.80&&(V0ana->cleanLambda==1))
+        if(V0ana->LLike>0.60&&(V0ana->cleanLambda==1))
           {
             isTreeLambda=true;   
           }
 
-        if(V0ana->ALLike>0.80&&(V0ana->cleanALambda==1))
+        if(V0ana->ALLike>0.60&&(V0ana->cleanALambda==1))
           {
             isTreeALambda=true;   
           }
@@ -778,11 +778,10 @@ isPileUp = V0ana->isPileUp;
 //badevent_time = AliSkimmedDataAnalysisMaker::TimeRangeMasking(V0ana->gid);
 }
 
-if(TMath::Abs(etasel) > 0.9) continue;
+if(TMath::Abs(etasel) > 1.0) continue;
     if(TMath::Abs(dca_r) > 3.0) continue;
     if(TMath::Abs(dca_z) > 3.0) continue;
     if(nCrossRows < 70) continue;
-    if(badevent_time == kTRUE) continue;
     
     if (enablePileUpCut==kTRUE){
       if(isPileUp==1) continue;
@@ -810,7 +809,7 @@ if(TMath::Abs(etasel) > 0.9) continue;
    mh2dEdxVspT_Proton->Fill(fMultiplicity,fDeDx);                                                                                                                                                               
 }
 
-//if ((fPIDtype == -3)) continue;
+if ((fPIDtype == -3)) continue;
 fTree->Fill();
 } //track loop
 

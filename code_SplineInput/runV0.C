@@ -1,5 +1,5 @@
-void runV0(TString filelist="list/V0_LHC18q.list",
-           TString filelist_track = "list/track_LHC18q.list", 
+void runV0(TString filelist="list/V0_LHC15o.list",
+           TString filelist_track = "list/track_LHC15o.list", 
            Bool_t enablePileUpCut=kFALSE,
            Bool_t isPbPb = kTRUE) {
   

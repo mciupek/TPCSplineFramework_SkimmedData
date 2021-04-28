@@ -20,11 +20,11 @@ void TPCnsigma_QA(){
 TFile *file = new TFile("TPCresidualPID.root");
 THnSparseF* hist = (THnSparseF*) file->Get("fHistPidQA");
 
-hist->GetAxis(6)->SetRangeUser(00000,25000);
-hist->GetAxis(7)->SetRangeUser(0,1);
+hist->GetAxis(6)->SetRangeUser(0,25000);
+//hist->GetAxis(7)->SetRangeUser(0,1);
 
-Double_t nTPCsigma_minus = -3;
-Double_t nTPCsigma_plus = 3;
+Double_t nTPCsigma_minus = -2.5;
+Double_t nTPCsigma_plus = 2.5;
 
 TH2D *histProtonTPC = new TH2D();
 TH2D *histProtonTOF = new TH2D();
@@ -42,7 +42,7 @@ TH2D *histElectronV0 = new TH2D();
 TH2D *histElectronV0plusTOF = new TH2D();
 
 TF1 *gausFit = new TF1("gaus","gaus",-1.5,1.5);
-TString fitoption = "QNRG3";
+TString fitoption = "QNRG2";
 
 
 TH2D *histKaonTPC = new TH2D();

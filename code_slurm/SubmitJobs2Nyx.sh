@@ -60,7 +60,7 @@ echo "Today's date: "$today
 
 echo $run
 echo $nChunks
-singularity shell /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500/alidockSingularity.sif <<EOF
+singularity shell /lustre/alice/users/miranov/NOTESData/alice-tpc-notes/JIRA/ATO-500/alidockSingularity5NoInit.sif <<EOF
 alienv -w /alicesw/sw enter AliPhysics/latest
 aliroot
 TStopwatch timer;
@@ -70,7 +70,6 @@ SetUpNewSpline($run);
 InitTree(1,1,$run);
 cacheCleanV0();
 cacheCleanTrack();
-cacheEventFlat();
 timer.Print();
 .qqqqq
 EOF

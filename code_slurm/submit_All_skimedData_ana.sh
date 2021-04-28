@@ -5,17 +5,17 @@
 #date            :Fri May  8 12:18:32 EDT 2020
 #version         :1.0
 
-#pass=pass2_FAST # pass1, pass2..
-pass=pass3
+pass=pass3 # pass1, pass2..
+#pass=pass2
 
-MAX_runs=150 #99 for LHC18r, 136 for 18q, user can give a small number for testing 
+MAX_runs=200 #99 for LHC18r, 136 for 18q, user can give a small number for testing 
 MAX_chunks=1 # how many chunks per job, split the large runs with into several jobs,  
 
 #run_pariod=LHC16r #LHC18q, LHC18r.
 #run_list=pPb/LHC16r_pass2_wSSD.txt #LHC18r_pass3_full.txt
 
-run_pariod=LHC18q
-run_list=LHC18q_pass3_full.txt
+run_pariod=LHC18r
+run_list=LHC18r_pass3_full.txt
 
 #user can modify the below path according to the input 
 input_base_path=/lustre/alice/DETdata/triggeredESD/alice 
