@@ -64,8 +64,8 @@ Note: make sure you are on the virgo job submit note, before trying to submit yo
 8) When the flattrees for V0 and primary tracks are generated we can process the outputs further and generate the THnSparse and TTree needed for the splines creation. For that we change to the folder code_SplineInput.
 
 9) First of all we need to create a list of the input files. For that we switch to the folder "lists" and perform the following command, where $output_dir, $year, $dataset, $pass are depending on your output folder defined in the steps before:
-   - ls -1v $output_dir/data/$year/$dataset/*/$pass/chunks_*/V0tree.root > V0_$dataset.list
-   - ls -1v $output_dir/data/$year/$dataset/*/$pass/chunks_*/Cleantrack.root > track_$dataset.list
+   - ls -1v $output_dir/data/$year/$dataset/$runnumber/$pass/chunks_$number/V0tree.root > V0_$dataset.list
+   - ls -1v $output_dir/data/$year/$dataset/$runnumber/$pass/chunks_$number/Cleantrack.root > track_$dataset.list
 
 
 10) The code used to loop over the flattrees to create the THnSparse and TTree is AliSkimmedDataAnalysisMaker.cpp, there you can add new variables, selection criteria etc. . 
